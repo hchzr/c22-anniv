@@ -55,7 +55,13 @@ function setHint(t, blink = false) { hintEl.textContent = t || ""; hintEl.classL
    ============================================================ */
 const sfx = {
   on: true, ctx: null,
-  init() { try { this.ctx = this.ctx || new (window.AudioContext || window.webkitAudioContext)(); this.ctx.resume(); } catch {} },
+  init() {
+    try {
+      if (navigator.audioSession) navigator.audioSession.type = "playback"; // ignore le bouton silencieux sur iPhone
+      this.ctx = this.ctx || new (window.AudioContext || window.webkitAudioContext)();
+      if (this.ctx.state !== "running") this.ctx.resume();
+    } catch {}
+  },
   note(f, t, d, type = "square", v = .04) {
     const c = this.ctx; if (!c || !this.on) return;
     const o = c.createOscillator(), g = c.createGain();
@@ -72,6 +78,7 @@ const sfx = {
   fanfare() { this.seq([[784, .1], [784, .1], [784, .1], [1047, .3], [0, .05], [988, .12], [1047, .5]], "square", .05); this.seq([[392, .3], [523, .3], [659, .7]], "triangle", .07); },
   thud() { this.beep(70, .25, .08, "square"); },
 };
+["touchend", "click", "keydown"].forEach(ev => addEventListener(ev, () => sfx.init(), { capture: true, passive: true }));
 // petite musique originale pour la ville
 const LEAD = [76, 74, 72, 74, 76, 79, 76, 72, 74, 76, 77, 76, 74, 0, 74, 0, 72, 74, 76, 72, 69, 72, 74, 76, 77, 76, 74, 71, 72, 0, 72, 0];
 const BASS = [48, 55, 48, 55, 48, 55, 52, 55, 53, 60, 53, 60, 55, 62, 55, 62, 48, 55, 48, 55, 45, 52, 45, 52, 53, 60, 55, 62, 48, 55, 48, 55];
@@ -209,13 +216,16 @@ const imgs = new Map();
 function loadImg(src) { if (!imgs.has(src)) { const i = new Image(); i.src = src; imgs.set(src, i); } return imgs.get(src); }
 PHOTOS.forEach(p => { loadImg(p.src); if (p.alt) loadImg(p.alt); });
 const dcache = new Map();
-function dither(src, w, h, fy) {
-  const k = src + w + "x" + h; if (dcache.has(k)) return dcache.get(k);
+const isPortrait = src => { const i = loadImg(src); return i.naturalWidth && i.naturalHeight / i.naturalWidth > 1.25; };
+function dither(src, mw = W, mh = H) {
+  const key = src + mw + "x" + mh;
+  if (dcache.has(key)) return dcache.get(key);
   const img = loadImg(src); if (!img.complete || !img.naturalWidth) return null;
+  const sc = Math.min(mw / img.naturalWidth, mh / img.naturalHeight);
+  const w = Math.round(img.naturalWidth * sc), h = Math.round(img.naturalHeight * sc);
   const o = document.createElement("canvas"); o.width = w; o.height = h;
   const x = o.getContext("2d");
-  const sc = Math.max(w / img.naturalWidth, h / img.naturalHeight), sw = w / sc, sh = h / sc;
-  x.drawImage(img, (img.naturalWidth - sw) / 2, (img.naturalHeight - sh) * fy, sw, sh, 0, 0, w, h);
+  x.drawImage(img, 0, 0, w, h);
   const id = x.getImageData(0, 0, w, h), d = id.data, pal = PAL.map(rgb);
   for (let j = 0; j < h; j++) for (let i = 0; i < w; i++) {
     const p = (j * w + i) * 4;
@@ -225,7 +235,7 @@ function dither(src, w, h, fy) {
     const lvl = Math.min(3, f + (v - f > th ? 1 : 0)), c = pal[3 - lvl];
     d[p] = c[0]; d[p + 1] = c[1]; d[p + 2] = c[2];
   }
-  x.putImageData(id, 0, 0); dcache.set(k, o); return o;
+  x.putImageData(id, 0, 0); dcache.set(key, o); return o;
 }
 
 /* ============================================================
@@ -276,14 +286,44 @@ function drawBanner(now) {
   if (t > 1300 && Math.random() < .5) spawnConfetti(2);
 }
 function drawPhoto(now) {
-  rect(0, 0, W, H, 0);
+  rect(0, 0, W, H, 3);
   const p = photo; if (!p) return;
   const live = p.alt && Math.floor(now / 700) % 2;
-  const im = dither(live ? p.alt : p.src, W, 96, p.fy);
-  if (im) ctx.drawImage(im, 0, 0); else text("...", 68, 44, 2);
+  const src = live ? p.alt : p.src, portrait = isPortrait(p.src);
+  if (portrait) {
+    const im = dither(src, 82, H);
+    if (im) ctx.drawImage(im, 0, 0);
+    rect(84, 12, 74, 130, 0); rect(85, 13, 72, 128, 3); rect(86, 14, 70, 126, 0);
+    side.lines.forEach((l, i) => text(l, 89, 20 + i * 12, 3));
+    if (side.arrow && Math.floor(now / 350) % 2 === 0) char("▼", 146, 130, 3);
+  } else {
+    const im = dither(src, W, tb.on ? 96 : H);
+    if (im) ctx.drawImage(im, Math.round((W - im.width) / 2), tb.on ? Math.round((96 - im.height) / 2) : Math.round((H - im.height) / 2));
+  }
+  if (!loadImg(p.src).naturalWidth) text("...", 68, 68, 1);
   rect(0, 0, len(p.name) * 8 + 4, 10, 3); text(p.name, 2, 1, 0);
   if (p.alt) { rect(W - 42, 0, 42, 10, 3); char("⏺", W - 40, 1, Math.floor(now / 500) % 2 ? 0 : 1); text("LIVE", W - 32, 1, 0); }
 }
+let joke = null, jokeI = 0, limitT = 0, rickT = 0;
+const side = { lines: [], arrow: false };
+function drawJoke() {
+  rect(0, 0, W, H, 0);
+  rect(0, 0, W, 12, 3); char("✻", 3, 2, 0); text(`SOUVENIR ${jokeI + 1}/${JOKES.length}`, 14, 2, 0);
+  text(`${joke.file.split("/").pop()}:${joke.line}`.slice(0, 19), 4, 17, 2);
+  const lines = wrap(joke.text, 17).slice(0, 5), h = lines.length * 11 + 12, y = 30 + Math.max(0, Math.round((62 - h) / 2));
+  rect(4, y, 152, h, 3); rect(4, y, 3, h, 1);
+  lines.forEach((l, i) => text(l, 12, y + 7 + i * 11, 0));
+}
+function drawLimit(now) {
+  const t = now - limitT, flash = t < 900 && Math.floor(t / 110) % 2;
+  rect(0, 0, W, H, flash ? 0 : 3);
+  const c = flash ? 3 : 0;
+  char("⚠", 64, 6, c, 4);
+  if (t > 300) { text("USAGE", center("USAGE", 2), 44, c, 2); text("LIMIT", center("LIMIT", 2), 62, c, 2); }
+  if (t > 600 && (t < 900 || Math.floor(t / 400) % 2 === 0)) text("REACHED", center("REACHED", 2), 80, c, 2);
+  if (t > 900) { rect(0, 104, W, 1, 1); text("reset : 19h00", center("reset : 19h00"), 112, 1); text("Pro n°1 : vide", center("Pro n°1 : vide"), 126, 1); }
+}
+
 function drawTicket(now) {
   const t = now - ticketT;
   rect(0, 0, W, H, 3);
@@ -364,6 +404,9 @@ function render(now) {
     case "photo": drawPhoto(now); break;
     case "ticket": drawTicket(now); break;
     case "cake": drawCake(now); break;
+    case "joke": drawJoke(now); break;
+    case "limit": drawLimit(now); break;
+    case "rick": drawRick(now); break;
   }
   if (tb.on) drawTextbox();
   if (menu) drawMenu();
@@ -404,12 +447,11 @@ function press(b) {
   sfx.init();
   // konami & soft reset fonctionnent partout
   kon = b === KONAMI[kon] ? kon + 1 : b === KONAMI[0] ? 1 : 0;
-  if (kon === KONAMI.length) { kon = 0; rickroll(); return; }
+  if (kon === KONAMI.length) { kon = 0; if (!rickOn) rickroll(); return; }
   const now = performance.now();
   if (b === "SELECT") lastSel = now;
   if (b === "START") lastStart = now;
   if (Math.abs(lastSel - lastStart) < 450 && (b === "SELECT" || b === "START") && view.mode !== "off" && view.mode !== "boot") { lastSel = lastStart = 0; softReset(); return; }
-  if (videoOpen) { if (b === "B" || b === "START") closeVideo(); return; }
   if (photoColor) { hidePhotoColor(); return; }
   if (b === "SELECT" && view.mode === "photo") { showPhotoColor(); return; }
   if (typing && (b === "A" || b === "B")) { typeSkip = true; return; }
@@ -435,7 +477,7 @@ cv.addEventListener("pointerdown", e => {
 });
 addEventListener("keydown", e => {
   if (e.metaKey || e.ctrlKey) return;
-  if (chat.on && !waiter && !videoOpen && chat.key(e)) { e.preventDefault(); return; }
+  if (chat.on && !waiter && chat.key(e)) { e.preventDefault(); return; }
   const map = { ArrowUp: "UP", ArrowDown: "DOWN", ArrowLeft: "LEFT", ArrowRight: "RIGHT", Enter: "START", " ": "A", a: "A", x: "A", z: "A", b: "B", Escape: "B", Backspace: "B", Tab: "SELECT", Shift: "SELECT" };
   const b = map[e.key]; if (b) { e.preventDefault(); press(b); }
 });
@@ -475,6 +517,17 @@ async function say(str, { cut = false, keep = false } = {}) {
     tb.arrow = true; setHint("A ▸"); await waitA(); tb.arrow = false; setHint("");
   }
   if (!keep) tb.on = false;
+}
+async function sideSay(str) {
+  const lines = wrap(str, 8);
+  side.lines = lines.map(() => "");
+  typing = true; typeSkip = false;
+  outer: for (let i = 0; i < lines.length; i++) for (const ch of lines[i]) {
+    if (typeSkip) break outer;
+    side.lines[i] += ch; if (ch !== " ") sfx.blip(); await sleep(30);
+  }
+  side.lines = lines.slice(); typing = false;
+  side.arrow = true; await waitA(); side.arrow = false;
 }
 async function prompt(str, kind = "prompt") {
   const [pre] = KIND[kind];
@@ -616,22 +669,26 @@ async function session() {
   await think("Fouille les souvenirs", 1600);
   await log("Search(souvenirs)", "tool");
   await log(`Found ${JOKES.length} files`, "res");
-  for (const j of JOKES) {
-    await log(`${j.file.split("/").pop()}:${j.line}`, "dim", 200);
-    await say(j.text);
-    if (j.note) await log(j.note, "res", 80);
+  await sleep(400);
+  for (let i = 0; i < JOKES.length; i++) {
+    joke = JOKES[i]; jokeI = i; view.mode = "joke";
+    sfx.seq([[988, .05], [1319, .09]]);
+    await sleep(500);
+    await say(joke.note ? "Claude : " + joke.note : "…");
   }
-  await waitLog();
+  view.mode = "term";
 
   await think("Regarde les photos", 1400);
   await log("Read(photos/*)", "tool");
   await log(`Read ${PHOTOS.length + 1} images`, "res");
   await sleep(500);
   for (const p of PHOTOS) {
-    view.mode = "photo"; photo = p;
-    await say(p.cap);
+    view.mode = "photo"; photo = p; side.lines = []; side.arrow = false;
+    setHint("A ▸   SELECT : en couleur");
+    if (isPortrait(p.src)) await sideSay(p.cap);
+    else { await Promise.race([sleep(1600), waitA()]); waiter = null; await say(p.cap); }
   }
-  view.mode = "term"; photo = null;
+  view.mode = "term"; photo = null; setHint("");
 
   await think("Cherche autre chose", 1400);
   await say("J'ai aussi retrouvé une vidéo où Constantin essaie de", { cut: true });
@@ -655,11 +712,17 @@ async function session() {
 
   await prompt("et le cadeau ?");
   await think("Vérifie le solde", 2400);
-  fx.shake = performance.now() + 500; gbEl.classList.remove("shake"); void gbEl.offsetWidth; gbEl.classList.add("shake"); sfx.err();
+  view.mode = "limit"; limitT = performance.now();
+  gbEl.classList.remove("shake"); void gbEl.offsetWidth; gbEl.classList.add("shake");
+  sfx.seq([[440, .12], [0, .04], [440, .12], [0, .04], [220, .5]], "sawtooth", .06);
+  setTimeout(() => { gbEl.classList.remove("shake"); void gbEl.offsetWidth; gbEl.classList.add("shake"); }, 450);
+  await sleep(1600);
+  setHint("A ▸", true); await waitA(); setHint("");
+  await say("Claude usage limit reached. Your limit will reset at 7pm.");
+  view.mode = "term";
   await log("Claude usage limit", "err", 80);
   await log("reached. Reset 7pm.", "err", 80);
   await log("/upgrade to increase your usage limit.", "dim", 120);
-  await waitLog();
   await say("Attends. Hugo a laissé un truc.");
   await say("Un deuxième abonnement Claude Pro. Oui, tu en as déjà un. On sait.");
   const REFUS = ["Ce n'était pas vraiment une question.", "Relis le titre. C'est un cadeau.", "J'ai transmis à Hugo. Il a dit non.", "Option NON désactivée par l'admin (Hugo)."];
@@ -680,49 +743,60 @@ async function session() {
   setHint("A : REDEEM   B : plus tard");
   const b = await waitBtn(AUTO ? "B" : "A", "B");
   setHint("");
-  if (b === "A") { await rickroll(); await say(RICK_CAPTION); }
+  if (b === "A") { await rickroll(); view.mode = "ticket"; await say(RICK_CAPTION); }
   view.mode = "term";
   await say("Joyeux anniversaire mec.\n— Hugo");
 }
 
 /* ============================================================
-   RICKROLL (dans l'écran de la Game Boy)
+   RICKROLL 8-BIT (joué par la Game Boy, avec le son)
    ============================================================ */
-let videoOpen = false, yt = null, videoDone = null;
-(() => { const s = document.createElement("script"); s.src = "https://www.youtube.com/iframe_api"; s.async = true; document.head.append(s); })();
-function rickroll() {
-  if (videoOpen) return videoDone;
-  videoOpen = true; egg("rickroll"); stopMusic();
-  const ov = $("#ov-video"), um = $("#ov-unmute");
-  ov.classList.add("on"); um.hidden = true;
-  $(".vid", ov).innerHTML = '<div id="yt"></div>';
-  if (window.YT && YT.Player) {
-    yt = new YT.Player("yt", {
-      videoId: "dQw4w9WgXcQ", width: "100%", height: "100%",
-      playerVars: { autoplay: 1, playsinline: 1, rel: 0, controls: 0, modestbranding: 1 },
-      events: { onReady: e => {
-        e.target.unMute(); e.target.setVolume(100); e.target.playVideo();
-        setTimeout(() => { if (yt && yt.getPlayerState?.() !== 1) { yt.mute(); yt.playVideo(); um.hidden = false; } }, 1300);
-      } },
-    });
-  } else {
-    $(".vid", ov).innerHTML = '<iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&mute=1&playsinline=1&controls=0" allow="autoplay; encrypted-media" title="Redeem"></iframe>';
-    um.hidden = true;
+const DANCER = [
+  norm(["......3333......", ".....322223.....", "....32222223....", "....33333333....", "....30000003....", "....30300303....", "....30000003....", ".....300003.....", "......3333......", "....33300333....", "...3222002223...", "..322220022223..", ".3.3222002223.3.", "3..3222002223..3", "...3222222223...", "...3222222223...", "...3222222223...", "...3222332223...", "....322..223....", "....322..223....", "....322..223....", "....311..113....", "...3333..3333...", "................"]),
+  norm(["......3333......", ".....322223.....", "....32222223....", "....33333333....", "....30000003....", "....30300303....", "....30000003....", ".....300003.....", "3.....3333.....3", ".3..33300333..3.", "..3222200222223.", "...3222002223...", "...3222002223...", "...3222002223...", "...3222222223...", "...3222222223...", "...3222222223...", "...3222332223...", "...322....223...", "..322......223..", "..322......223..", "..311......113..", ".3333......3333.", "................"]),
+];
+let rickOn = false, rickStop = null;
+function drawRick(now) {
+  const t = now - rickT, beat = Math.floor(t / 265);
+  rect(0, 0, W, H, 3);
+  for (let i = -2; i < 12; i++) { const x = ((i * 24 + t * .03) % 288) - 32; ctx.fillStyle = col(beat % 2 ? 2 : 1); ctx.beginPath(); ctx.moveTo(80, -10); ctx.lineTo(x, H); ctx.lineTo(x + 10, H); ctx.closePath(); ctx.fill(); }
+  rect(0, 112, W, 32, 2); for (let x = 0; x < W; x += 16) rect(x + (beat % 2) * 8, 112, 8, 2, 1);
+  const title = "♪ NEVER GONNA GIVE YOU UP ♪   ", mx = -((t * .05) % (len(title) * 8));
+  rect(0, 0, W, 12, 3); text(title + title, Math.round(mx), 2, 0);
+  const sway = [0, 4, 0, -4][beat % 4];
+  rect(50 + sway, 106, 60, 5, 3);
+  sprite(DANCER[beat % 2], 56 + sway, 36, beat % 4 === 3, 3);
+  if (Math.floor(t / 300) % 2 === 0) text("RICKROLL", center("RICKROLL", 2), 120, 0, 2);
+  if (Math.random() < .05) parts.push({ k: "c", x: rnd(10, 150), y: 110, vx: rnd(-.01, .01), vy: -.04, c: 0, s: 2, life: 1500 });
+}
+// refrain en 8-bit, ~8 s, transposé en do
+const RICK_LEAD = [[67, 1], [69, 1], [72, 1], [69, 1], [76, 3], [76, 3], [74, 6], [67, 1], [69, 1], [72, 1], [69, 1], [74, 3], [74, 3], [72, 3], [71, 1], [69, 2], [67, 1], [69, 1], [72, 1], [69, 1], [72, 4], [74, 2], [71, 3], [69, 1], [67, 2], [0, 2], [67, 2], [74, 4], [72, 8]];
+const RICK_BASS = [41, 43, 40, 45, 41, 43, 36, 36];
+function playRick() {
+  const c = sfx.ctx; if (!c) return () => {};
+  const out = c.createGain(); out.gain.value = 1; out.connect(c.destination);
+  const s16 = .133, t0 = c.currentTime + .08;
+  const n = (f, t, d, type, v) => { const o = c.createOscillator(), g = c.createGain(); o.type = type; o.frequency.value = f; g.gain.setValueAtTime(v, t); g.gain.setValueAtTime(v, t + d * .75); g.gain.linearRampToValueAtTime(0, t + d); o.connect(g).connect(out); o.start(t); o.stop(t + d + .02); };
+  const noise = (t, d, v, hp) => { const b = c.createBuffer(1, c.sampleRate * d, c.sampleRate), x = b.getChannelData(0); for (let i = 0; i < x.length; i++) x[i] = (Math.random() * 2 - 1) * (1 - i / x.length); const s = c.createBufferSource(), f = c.createBiquadFilter(), g = c.createGain(); s.buffer = b; f.type = "highpass"; f.frequency.value = hp; g.gain.value = v; s.connect(f).connect(g).connect(out); s.start(t); };
+  for (let loop = 0; loop < 2; loop++) {
+    const base = t0 + loop * 64 * s16;
+    let k = 0; for (const [m, d] of RICK_LEAD) { if (m) n(mid(m), base + k * s16, d * s16 * .92, "square", .05); k += d; }
+    RICK_BASS.forEach((m, half) => { for (let e = 0; e < 4; e++) n(mid(m + (e % 2 ? 12 : 0)), base + (half * 8 + e * 2) * s16, s16 * 1.8, "triangle", .09); });
+    for (let beat = 0; beat < 16; beat++) { const t = base + beat * 4 * s16; if (beat % 2) noise(t, .12, .12, 1500); else n(60, t, .1, "square", .12); noise(t + 2 * s16, .03, .04, 6000); }
   }
-  setHint("B : fermer");
-  videoDone = new Promise(r => { closeVideo.r = r; });
-  return videoDone;
+  return () => { try { out.gain.setValueAtTime(0, c.currentTime); out.disconnect(); } catch {} };
 }
-function closeVideo() {
-  if (!videoOpen) return;
-  try { yt && yt.destroy(); } catch {}
-  yt = null; videoOpen = false;
-  $("#ov-video").classList.remove("on"); $(".vid", $("#ov-video")).innerHTML = "";
-  setHint("");
-  closeVideo.r && closeVideo.r(); closeVideo.r = null;
+async function rickroll() {
+  if (rickOn) return;
+  rickOn = true; egg("rickroll"); stopMusic(); sfx.init();
+  const prev = view.mode, prevTb = tb.on, saved = waiter, prevHint = hintEl.textContent;
+  tb.on = false;
+  view.mode = "rick"; rickT = performance.now();
+  const stop = playRick();
+  setHint("B : stop");
+  await Promise.race([sleep(17200), waitBtn("B", "START")]);
+  stop(); waiter = saved; tb.on = prevTb; view.mode = prev; setHint(prevHint); rickOn = false;
 }
-$("#ov-close").addEventListener("pointerdown", e => { e.stopPropagation(); closeVideo(); });
-$("#ov-unmute").addEventListener("pointerdown", e => { e.stopPropagation(); if (yt) { yt.unMute(); yt.setVolume(100); yt.playVideo(); } $("#ov-unmute").hidden = true; });
 
 /* photo en couleur (SELECT) */
 let photoColor = false;

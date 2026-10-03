@@ -65,12 +65,6 @@ button { font: inherit; }
 .ov { position: absolute; inset: 0; background: #081820; display: none; }
 .ov.on { display: block; }
 .ov img { width: 100%; height: 100%; object-fit: contain; display: block; }
-#ov-video .vid { position: absolute; inset: 0; }
-#ov-video iframe { width: 100%; height: 100%; border: 0; display: block; }
-.ov-btn { all: unset; cursor: pointer; position: absolute; z-index: 2; font: 8px/1 "Press Start 2P", monospace; color: #081820; background: #e0f8d0; padding: 6px 7px; border: 2px solid #081820; }
-.ov-close { top: 4px; right: 4px; }
-.ov-unmute { left: 50%; bottom: 8px; transform: translateX(-50%); }
-.ov-unmute[hidden] { display: none; }
 
 .gb-logo { margin: calc(var(--w) * .035) 0 0 2px; color: var(--ink); font: italic 800 calc(var(--w) * .062)/1 -apple-system, system-ui, sans-serif; letter-spacing: -.01em; display: flex; align-items: center; gap: 6px; }
 .gb-logo b { font-weight: 900; letter-spacing: .02em; }
@@ -117,7 +111,6 @@ button { font: inherit; }
     <div class="screen">
       <canvas id="gbscreen" width="160" height="144" aria-label="Écran du jeu"></canvas>
       <div class="ov" id="ov-photo"><img id="ov-img" alt=""></div>
-      <div class="ov" id="ov-video"><div class="vid"><div id="yt"></div></div><button class="ov-btn ov-close" id="ov-close" type="button">B ✕</button><button class="ov-btn ov-unmute" id="ov-unmute" type="button" hidden>SON ON</button></div>
     </div>
   </div>
   <div class="gb-logo"><button id="star" type="button" aria-label="Étoile">✻</button> Claude <b>BOY</b></div>
