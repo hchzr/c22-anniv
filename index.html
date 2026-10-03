@@ -16,7 +16,7 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23141413'/%3E%3Cg stroke='%23d97757' stroke-width='11' stroke-linecap='round'%3E%3Cpath d='M50 18v64M18 50h64M27 27l46 46M73 27L27 73'/%3E%3C/g%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,700;0,800;1,400&family=Press+Start+2P&display=swap" rel="stylesheet">
 <style>
 :root {
   --page: #0c0c0b;
@@ -70,43 +70,53 @@ a { color: var(--clay-hi); text-underline-offset: 3px; }
 button { font: inherit; color: inherit; }
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
-/* ================= splash ================= */
-#splash {
-  position: fixed; inset: 0; z-index: 50;
-  background: var(--page);
-  display: grid; align-content: center;
-  padding: 24px 24px calc(24px + env(safe-area-inset-bottom));
-  transition: opacity .9s var(--ease), filter .9s var(--ease), visibility 0s .9s;
+/* ================= intro Game Boy ================= */
+#intro {
+  position: fixed; inset: 0; z-index: 50; background: #1b1a1f;
+  display: grid; place-items: center; align-content: center; gap: 16px; padding: 16px;
+  overflow: hidden; cursor: pointer; transition: background .6s, opacity .5s;
+  -webkit-user-select: none; user-select: none; touch-action: manipulation;
 }
-#splash.gone { opacity: 0; filter: blur(12px); visibility: hidden; pointer-events: none; }
-.sp { max-width: 760px; width: 100%; margin: 0 auto; }
-.sp-shell { color: var(--dim); font-size: 14px; }
-.sp-shell .p { color: var(--fg); }
-.cur { display: inline-block; width: .6em; height: 1.15em; vertical-align: -0.2em; background: var(--clay); animation: blink 1.05s steps(1) infinite; margin-left: 1px; }
-@keyframes blink { 50% { opacity: 0; } }
-.sp h1 {
-  margin: 34px 0 30px; font-weight: 800; letter-spacing: -0.035em;
-  font-size: clamp(30px, 7.4vw, 64px); line-height: 1.05; text-wrap: balance;
+#intro.zoom { background: var(--page); }
+#intro.gone { opacity: 0; pointer-events: none; }
+.gb {
+  --w: min(340px, 86vw, calc((100dvh - 110px) * .61));
+  width: var(--w); aspect-ratio: 90 / 148; position: relative;
+  background: linear-gradient(160deg, #dedad5, #c4c0ba);
+  border-radius: 12px 12px calc(var(--w) * .16) 12px;
+  box-shadow: inset -5px -7px 0 rgba(0,0,0,.12), inset 3px 3px 0 rgba(255,255,255,.7), 0 40px 80px -20px rgba(0,0,0,.8);
+  padding: calc(var(--w) * .07) calc(var(--w) * .07) 0;
+  transform-origin: 50% 30%;
+  transition: transform 1s cubic-bezier(.7,0,.3,1), opacity .9s ease-in;
+  font-family: -apple-system, system-ui, sans-serif;
 }
-.sp h1 .star { display: inline-block; color: var(--clay); animation: spin 9s linear infinite; }
-@keyframes spin { to { transform: rotate(360deg); } }
-.sp h1 em { font-style: normal; color: var(--clay); }
-.sp-actions { display: flex; flex-wrap: wrap; gap: 12px; }
-.btn {
-  appearance: none; border: 0; cursor: pointer;
-  display: inline-flex; align-items: center; gap: 10px;
-  min-height: 50px; padding: 0 22px; border-radius: 10px;
-  font-weight: 700; font-size: 15px;
-  transition: transform .25s var(--ease), background .2s, box-shadow .25s;
-}
-.btn.primary { background: var(--clay); color: #1d0f0a; box-shadow: 0 10px 30px -10px rgba(217,119,87,.7); }
-.btn.primary:hover { transform: translateY(-2px); box-shadow: 0 16px 40px -12px rgba(217,119,87,.8); }
-.btn.ghost { background: #1e1e1c; color: var(--fg); border: 1px solid var(--line); }
-.btn.ghost:hover { background: #262624; }
-.btn:active { transform: scale(.97); }
-.btn svg { width: 18px; height: 18px; }
-.sp-note { margin-top: 22px; color: var(--faint); font-size: 13px; }
-.sp.launching .sp-actions, .sp.launching .sp-note { opacity: 0; transition: opacity .3s; pointer-events: none; }
+#intro.zoom .gb { transform: scale(7); opacity: 0; }
+.gb-bezel { background: #5a586b; border-radius: 8px 8px calc(var(--w) * .1) 8px; padding: calc(var(--w) * .045) calc(var(--w) * .1) calc(var(--w) * .08); }
+.gb-top { display: flex; align-items: center; justify-content: center; gap: 8px; color: #b9b6c8; font: 700 calc(var(--w) * .026)/1 -apple-system, system-ui, sans-serif; letter-spacing: .1em; margin-bottom: calc(var(--w) * .04); }
+.led { position: absolute; left: calc(var(--w) * .1); margin-top: calc(var(--w) * .16); width: 7px; height: 7px; border-radius: 50%; background: #3b1b1b; }
+.led.on { background: #ff3b3b; box-shadow: 0 0 10px #ff3b3b; }
+#gbscreen { display: block; width: 100%; aspect-ratio: 160 / 144; image-rendering: pixelated; image-rendering: crisp-edges; background: #7b8a63; box-shadow: inset 0 0 0 1px rgba(0,0,0,.3); }
+.gb-logo { margin: calc(var(--w) * .035) 0 0 2px; color: #26297a; font: italic 800 calc(var(--w) * .062)/1 -apple-system, system-ui, sans-serif; letter-spacing: -.01em; }
+.gb-logo b { font-weight: 900; letter-spacing: .02em; }
+.gb-logo .s { color: var(--clay); font-style: normal; }
+.gb-ctrl { display: flex; justify-content: space-between; align-items: center; margin-top: calc(var(--w) * .09); }
+.dpad { position: relative; width: calc(var(--w) * .27); aspect-ratio: 1; }
+.dpad i { position: absolute; background: #2d2d35; border-radius: 4px; box-shadow: inset -2px -2px 0 rgba(0,0,0,.4); }
+.dpad i:first-child { left: 33%; top: 0; width: 34%; height: 100%; }
+.dpad i:last-child { top: 33%; left: 0; height: 34%; width: 100%; }
+.ab { display: flex; gap: calc(var(--w) * .05); transform: rotate(-25deg); margin-right: 2%; }
+.ab button { all: unset; cursor: pointer; width: calc(var(--w) * .135); aspect-ratio: 1; border-radius: 50%; background: #9b2457; box-shadow: inset -3px -4px 0 rgba(0,0,0,.25), 0 3px 0 rgba(0,0,0,.18); position: relative; }
+.ab button::after { content: attr(data-l); position: absolute; top: 112%; left: 50%; transform: translateX(-50%); color: #26297a; font: 800 calc(var(--w) * .035)/1 -apple-system, system-ui, sans-serif; }
+.ab button:active { transform: translateY(2px); }
+.gb-ss { display: flex; justify-content: center; gap: calc(var(--w) * .07); margin-top: calc(var(--w) * .09); margin-right: 14%; }
+.gb-ss button { all: unset; cursor: pointer; width: calc(var(--w) * .13); height: calc(var(--w) * .028); border-radius: 99px; background: #85838f; transform: rotate(-25deg); position: relative; box-shadow: inset -1px -2px 0 rgba(0,0,0,.25); }
+.gb-ss button::after { content: attr(data-l); position: absolute; top: 260%; left: 50%; transform: translateX(-50%); color: #26297a; font: 800 calc(var(--w) * .026)/1 -apple-system, system-ui, sans-serif; letter-spacing: .1em; }
+.gb-speaker { position: absolute; right: 8%; bottom: 5%; display: flex; gap: calc(var(--w) * .022); transform: rotate(-28deg); }
+.gb-speaker i { width: calc(var(--w) * .016); height: calc(var(--w) * .13); border-radius: 4px; background: #a8a49f; box-shadow: inset 1px 1px 2px rgba(0,0,0,.4); }
+.intro-hint { margin: 0; color: #cfcbe0; font: 10px/1.4 "Press Start 2P", monospace; letter-spacing: .04em; text-align: center; animation: blink 1.1s steps(1) infinite; }
+.intro-skip { all: unset; cursor: pointer; color: #6f6c80; font: 12px var(--mono); padding: 6px 10px; }
+.intro-skip:hover { color: #cfcbe0; }
+.intro-skip[hidden], .intro-hint[hidden] { display: none; }
 
 /* ================= window ================= */
 .win {
@@ -326,6 +336,7 @@ dialog.lb[open] { display: grid; grid-template-rows: minmax(0, 1fr) auto; }
 .on .ticket::after { animation: shine 1.6s .7s var(--ease) forwards; }
 @keyframes shine { to { transform: translateX(120%); } }
 .ticket .top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; font-size: 13px; font-weight: 700; }
+.ticket .big sup { font-size: .45em; vertical-align: .9em; }
 .ticket .big { margin: 18px 0 8px; font-size: clamp(36px, 8vw, 62px); line-height: .98; font-weight: 800; letter-spacing: -0.04em; }
 .ticket .sub { font-size: 16px; font-weight: 700; }
 .ticket .perf { margin: 20px -28px 16px; border-top: 2px dashed rgba(29,15,10,.35); position: relative; }
@@ -463,7 +474,11 @@ dialog.rr::backdrop { background: rgba(8,8,7,.85); backdrop-filter: blur(6px); }
 .rr-bar { display: grid; grid-template-columns: 60px minmax(0, 1fr) 60px; align-items: center; height: 36px; padding: 0 12px; background: #2a2a28; font: 12.5px -apple-system, system-ui, sans-serif; color: var(--dim); text-align: center; }
 .rr-bar .lights button { width: 12px; height: 12px; }
 .rr-video { aspect-ratio: 16/9; background: #000; }
+.rr-video { position: relative; }
 .rr-video iframe { width: 100%; height: 100%; border: 0; display: block; }
+.rr-unmute { all: unset; cursor: pointer; position: absolute; left: 50%; bottom: 16px; transform: translateX(-50%); display: inline-flex; gap: 8px; align-items: center; padding: 10px 16px; border-radius: 999px; background: var(--fg); color: #141413; font: 700 13px var(--mono); box-shadow: 0 10px 30px rgba(0,0,0,.6); }
+.rr-unmute svg { width: 18px; height: 18px; }
+.rr-unmute[hidden] { display: none; }
 .rr-cap { padding: 14px 16px 16px; font-size: 13.5px; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
 
 @media (max-width: 640px) {
@@ -496,22 +511,23 @@ dialog.rr::backdrop { background: rgba(8,8,7,.85); backdrop-filter: blur(6px); }
 <script>document.documentElement.classList.add('js')</script>
 
 <!-- ============ SPLASH ============ -->
-<div id="splash">
-  <div class="sp" id="sp">
-    <div class="sp-shell">
-      <div>Last login: Sat Oct 3 00:00:18 on ttys018</div>
-      <div><span class="p">hugo@MacBook-Pro ~ %</span> <span id="sp-typed"></span><span class="cur"></span></div>
+<div id="intro" aria-label="Intro : appuie sur START">
+  <div class="gb" id="gb">
+    <div class="gb-bezel">
+      <div class="gb-top">CLAUDE CODE · DOT MATRIX · 18</div>
+      <span class="led" id="led"></span>
+      <canvas id="gbscreen" width="160" height="144"></canvas>
     </div>
-    <h1><span class="star">✻</span> Constantin, Claude a <em>quelque chose</em> à te dire.</h1>
-    <div class="sp-actions">
-      <button class="btn primary" id="go-sound" type="button">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg>
-        Lancer avec le son
-      </button>
-      <button class="btn ghost" id="go-mute" type="button">Sans le son</button>
+    <div class="gb-logo"><span class="s">✻</span> Claude <b>BOY</b></div>
+    <div class="gb-ctrl">
+      <div class="dpad" aria-hidden="true"><i></i><i></i></div>
+      <div class="ab"><button type="button" data-l="B" aria-label="B"></button><button type="button" data-l="A" aria-label="A"></button></div>
     </div>
-    <p class="sp-note">Touche l'écran pour avancer.</p>
+    <div class="gb-ss"><button type="button" data-l="SELECT" aria-label="Select"></button><button type="button" data-l="START" aria-label="Start"></button></div>
+    <div class="gb-speaker" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
   </div>
+  <p class="intro-hint" id="intro-hint">Appuie sur START</p>
+  <button class="intro-skip" id="intro-skip" type="button" hidden>passer l'intro</button>
 </div>
 
 <!-- ============ WINDOW ============ -->
@@ -659,8 +675,8 @@ dialog.rr::backdrop { background: rgba(8,8,7,.85); backdrop-filter: blur(6px); }
       <div class="perm ln" id="perm">
         <h3>Cadeau de Hugo</h3>
         <div class="body">
-          <div class="q">Débloquer <b>1 mois de Claude Pro</b> pour Constantin ?</div>
-          <div class="dim">Fini les limites à 2h du mat.</div>
+          <div class="q">Débloquer un <b>deuxième</b> abonnement Claude Pro pour Constantin ?</div>
+          <div class="dim">Oui, il en a déjà un. On sait.</div>
         </div>
         <div class="q">Do you want to proceed?</div>
         <ul class="opts" role="listbox" aria-label="Accepter le cadeau ?">
@@ -674,23 +690,24 @@ dialog.rr::backdrop { background: rgba(8,8,7,.85); backdrop-filter: blur(6px); }
     </div>
 
     <div class="blk" data-step data-read="1800" data-stagger="500">
-      <div class="msg tool ln"><span class="dot">⏺</span><span><span class="tool-name">Bash</span>(claude /upgrade --plan pro --months 1 --gift)</span></div>
-      <div class="res ln"><span class="elbow">⎿</span><span><span class="green">✓</span> Claude Pro activé pour constantin</span></div>
+      <div class="msg tool ln"><span class="dot">⏺</span><span><span class="tool-name">Bash</span>(claude /login --account 2)</span></div>
+      <div class="res ln"><span class="elbow">⎿</span><span><span class="green">Login successful.</span> 2 abonnements Claude Pro actifs.</span></div>
     </div>
 
     <div class="blk" data-step data-read="6500">
       <div class="ticket-wrap ln">
-        <div class="ticket" id="ticket" role="group" aria-label="Cadeau : un mois de Claude Pro, offert par Hugo">
+        <div class="ticket" id="ticket" role="group" aria-label="Cadeau : un deuxième abonnement Claude Pro pour un mois, offert par Hugo">
           <svg class="mark" viewBox="0 0 100 100" aria-hidden="true"><g stroke="#1d0f0a" stroke-width="9" stroke-linecap="round"><path d="M50 8v84M8 50h84M20 20l60 60M80 20L20 80"/></g></svg>
           <div class="top"><span>BON CADEAU · N° 18</span><span>03.10.2026</span></div>
-          <div class="big">1 mois de<br>Claude Pro</div>
-          <div class="sub">Offert par Hugo, pour tes 18 ans.</div>
+          <div class="big">Un 2<sup>e</sup><br>Claude Pro</div>
+          <div class="sub">Parce qu'un seul, visiblement, ça ne suffit pas.</div>
           <div class="perf"></div>
           <div class="receipt">
-            <div class="rc"><span>Claude Pro</span><span class="d"></span><b>1 mois</b></div>
-            <div class="rc"><span>Usage limits</span><span class="d"></span><b>0</b></div>
+            <div class="rc"><span>Claude Pro n°1</span><span class="d"></span><b>déjà à toi</b></div>
+            <div class="rc"><span>Claude Pro n°2</span><span class="d"></span><b>1 mois</b></div>
+            <div class="rc"><span>Usage limits</span><span class="d"></span><b>×2</b></div>
           </div>
-          <div class="fine">Non échangeable contre une chaise.</div>
+          <div class="fine">Offert par Hugo, pour tes 18 ans. Non échangeable contre une chaise.</div>
           <button class="redeem" id="redeem" type="button">Redeem <span aria-hidden="true">→</span></button>
           <div class="stamp" aria-hidden="true"><small>✻ 18 ✻</small>CERTIFIÉ<br>MAJEUR</div>
         </div>
@@ -760,7 +777,7 @@ dialog.rr::backdrop { background: rgba(8,8,7,.85); backdrop-filter: blur(6px); }
 <dialog class="rr" id="rr" aria-label="secret_NE_PAS_OUVRIR.mp4">
   <div class="rr-bar"><div class="lights"><button type="button" id="rr-x" aria-label="Fermer"></button></div><div>secret_NE_PAS_OUVRIR.mp4</div><div></div></div>
   <div class="rr-video" id="rr-video"></div>
-  <div class="rr-cap"><span>Le vrai, Hugo te l'active à la main.</span><button class="btn ghost" id="rr-close" type="button" style="min-height:40px">Fermer</button></div>
+  <div class="rr-cap"><span>Le vrai, c'est avec claudinou@polygo.ch, mais comme Hugo n'a pas les codes Cloudflare, tu l'auras lundi.</span><button class="btn ghost" id="rr-close" type="button" style="min-height:40px">Fermer</button></div>
 </dialog>
 
 <script>
@@ -1223,12 +1240,35 @@ $("#star").onclick = () => {
 
 // Rickroll
 const rr = $("#rr");
+// API YouTube chargée d'avance : la vidéo démarre avec le son dans la foulée du clic,
+// et si le navigateur refuse (iOS), elle part en muet avec un bouton pour le son.
+let yt = null;
+(() => { const sc = document.createElement("script"); sc.src = "https://www.youtube.com/iframe_api"; sc.async = true; document.head.append(sc); })();
 function rickroll() {
   if (rr.open) return;
-  $("#rr-video").innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?autoplay=1&playsinline=1&rel=0" title="Redeem" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>`;
   wasPlaying = playing; setPlaying(false); rr.showModal(); egg("rickroll");
+  $("#rr-video").innerHTML = `<div id="yt"></div><button class="rr-unmute" id="rr-unmute" type="button" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg>Toucher pour le son</button>`;
+  $("#rr-unmute").onclick = () => { if (yt) { yt.unMute(); yt.setVolume(100); yt.playVideo(); } $("#rr-unmute").hidden = true; };
+  if (window.YT && YT.Player) {
+    yt = new YT.Player("yt", {
+      videoId: "dQw4w9WgXcQ", width: "100%", height: "100%",
+      playerVars: { autoplay: 1, playsinline: 1, rel: 0, modestbranding: 1 },
+      events: {
+        onReady: e => {
+          e.target.unMute(); e.target.setVolume(100); e.target.playVideo();
+          setTimeout(() => {
+            if (!yt || yt.getPlayerState?.() === 1) return;
+            yt.mute(); yt.playVideo(); $("#rr-unmute").hidden = false;
+          }, 1300);
+        },
+      },
+    });
+  } else {
+    $("#rr-video").insertAdjacentHTML("afterbegin", `<iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&mute=1&playsinline=1&rel=0" title="Redeem" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>`);
+    $("#yt").remove();
+  }
 }
-rr.addEventListener("close", () => { $("#rr-video").innerHTML = ""; setPlaying(wasPlaying); });
+rr.addEventListener("close", () => { try { yt && yt.destroy(); } catch {} yt = null; $("#rr-video").innerHTML = ""; setPlaying(wasPlaying); });
 $("#rr-close").onclick = () => rr.close();
 $("#rr-x").onclick = () => rr.close();
 $("#redeem").onclick = e => { e.stopPropagation(); rickroll(); };
@@ -1404,8 +1444,8 @@ const SLASH = {
   "/help":    ["Show help and available commands", () => pre(`Claude Code v18.0.0\n\nAlways review Claude's responses, especially when running code.\n\nUsage modes:\n• REPL: claude (interactive session)\n\nCommon tasks:\n• Ask questions about your codebase\n• Edit files\n• Run commands with ! prefix\n\nType / to see all commands.`)],
   "/init":    ["Initialize a new CLAUDE.md file with codebase documentation", () => tool(`<span class="tool-name">Write</span>(CLAUDE.md)`) + sub("Wrote 7 lines to CLAUDE.md") + pre(`<span class="dim">${esc(CLAUDE_MD)}</span>`)],
   "/model":   ["Set the AI model for Claude Code", () => pre(`Select model\n\n   1. Default (Opus)\n   2. Sonnet\n   3. Haiku\n <span class="violet">❯ 4. Constantin 18.0 ✔</span>\n\n<span class="dim">La 17.x n'est plus supportée.</span>`)],
-  "/status":  ["Show Claude Code status including version, model, account", () => pre(`Version:  18.0.0\nModel:    Constantin 18.0\nAccount:  constantin\nPlan:     Claude Pro (de la part de Hugo)\nStatus:   ${esc($("#age").textContent)}`)],
-  "/upgrade": ["Upgrade to Max for higher rate limits and more Opus", () => sub("Tu es déjà sur Claude Pro.") + pre(`Pour Max, demande à Hugo pour tes 19 ans.`)],
+  "/status":  ["Show Claude Code status including version, model, account", () => pre(`Version:  18.0.0\nModel:    Constantin 18.0\nAccount:  constantin\nPlan:     Claude Pro ×2 (le 2e de la part de Hugo)\nStatus:   ${esc($("#age").textContent)}`)],
+  "/upgrade": ["Upgrade to Max for higher rate limits and more Opus", () => sub("Tu as déjà deux Claude Pro.") + pre(`Pour Max, on verra à tes 19 ans.`)],
   "/vim":     ["Toggle between Vim and Normal editing modes", () => { setVim(!vimMode); return sub(vimMode ? "Editor mode set to vim. Use Escape key to toggle between INSERT and NORMAL modes." : "Editor mode set to normal."); }],
 };
 
@@ -1431,7 +1471,7 @@ async function ask(text, d) {
   if (/^(rm|sudo|ls|cat|git|vim|open|echo|pwd|whoami|uptime|date|swift|xcodebuild)\b/.test(q)) {
     add(d, tool(`<span class="tool-name">Bash</span>(${esc(text)})`) + shell(text, d)); return;
   }
-  if (/(redeem|cadeau|gift|lien)/.test(q)) return stream(d, "Le bouton Redeem, plus haut sur le bon. Vas-y.");
+  if (/(redeem|cadeau|gift|lien)/.test(q)) return stream(d, "Un deuxième Claude Pro. Le bouton Redeem est sur le bon, plus haut.");
   if (/(merci|thanks|thx|thank)/.test(q)) return stream(d, "Remercie Hugo. Moi j'ai juste tapé.");
   if (/^(salut|hello|hey|yo|coucou|bonjour|slt|wesh)/.test(q)) return stream(d, "Salut Constantin. Joyeux anniversaire.");
   if (/(qui es|t'es qui|tu es qui|who are you)/.test(q)) return stream(d, "Claude. Celui à qui tu demandes tout, toutes les quatre minutes.");
@@ -1532,25 +1572,17 @@ document.addEventListener("click", e => {
 /* ============================================================
    LANCEMENT
    ============================================================ */
-let launched = false;
-async function launch(withSound) {
-  if (launched) return; launched = true;
-  setSound(withSound);
-  $("#sp").classList.add("launching");
-  const typed = $("#sp-typed"), txt = "cd ~/anniv-constantin && claude";
-  if (!reduce) for (const ch of txt) { typed.textContent += ch; if (ch !== " ") sfx.tick(); await sleep(40 + Math.random() * 45); }
-  else typed.textContent = txt;
-  await sleep(reduce ? 0 : 500);
-  $("#splash").classList.add("gone");
+async function enterClaude() {
+  setSound(sfx.on);
   document.body.classList.remove("pre");
   scrollTo(0, 0);
   await sleep(reduce ? 0 : 800);
   run();
 }
-$("#go-sound").onclick = () => launch(true);
-$("#go-mute").onclick = () => launch(false);
-setSound(false);
-if (location.hash === "#skip") { $("#splash").classList.add("gone"); document.body.classList.remove("pre"); launched = true; rushing = true; run(); }
+window.enterClaude = enterClaude;
+setSound(true);
+if (location.hash === "#skip") { $("#intro").remove(); document.body.classList.remove("pre"); rushing = true; run(); }
 </script>
+<script src="intro.js"></script>
 </body>
 </html>
