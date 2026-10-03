@@ -61,8 +61,6 @@ body::before {
     radial-gradient(900px 500px at 50% -120px, rgba(217,119,87,.20), transparent 70%),
     radial-gradient(600px 400px at 100% 100%, rgba(180,187,250,.06), transparent 70%);
 }
-body.aura::before { animation: aura 1.6s ease-in-out 3; }
-@keyframes aura { 50% { opacity: .25; filter: hue-rotate(40deg) saturate(2.5) brightness(1.6); } }
 ::selection { background: var(--clay); color: #160c08; }
 ::-webkit-scrollbar { width: 10px; }
 ::-webkit-scrollbar-track { background: var(--page); }
@@ -355,6 +353,41 @@ dialog.lb[open] { display: grid; grid-template-rows: minmax(0, 1fr) auto; }
 .stream .c.v { visibility: visible; }
 .ty { font-weight: 800; }
 
+.redeem {
+  all: unset; cursor: pointer; position: relative; z-index: 3;
+  display: inline-flex; align-items: center; gap: 1ch; margin-top: 16px; min-height: 44px; padding: 0 18px;
+  background: #1d0f0a; color: #fbe9e1; border-radius: 10px; font-weight: 700; font-size: 14px;
+  transition: transform .2s var(--ease), background .2s;
+}
+.redeem:hover { transform: translateY(-1px); background: #000; }
+.redeem:focus-visible { outline: 2px solid #1d0f0a; outline-offset: 3px; }
+.inbox { margin-top: 24px; border: 1px solid #55534d; border-radius: 6px; padding: 6px 12px; display: flex; gap: 1ch; align-items: center; }
+.inbox .caret { color: var(--fg); flex: none; }
+.inbox input { all: unset; flex: 1; min-width: 0; color: var(--fg); caret-color: var(--fg); font: inherit; min-height: 28px; }
+.inbox input::placeholder { color: var(--faint); }
+.inbox.bash { border-color: #fd5db1; }
+.inbox.bash .caret { color: #fd5db1; }
+.inbox.vim { border-color: var(--green); }
+.inbox[aria-busy="true"] { opacity: .6; }
+.menu { padding: 6px 4px 0; display: grid; }
+.menu .it { all: unset; cursor: pointer; display: grid; grid-template-columns: 12ch minmax(0, 1fr); gap: 2ch; padding: 1px 0; color: var(--fg); }
+.menu .it .d { color: var(--faint); }
+.menu .it[aria-selected="true"], .menu .it[aria-selected="true"] .d { color: var(--violet); }
+.menu.keys { grid-template-columns: 1fr 1fr; gap: 0 3ch; color: var(--dim); font-size: 13px; }
+.status #mode { color: var(--faint); }
+.status #mode.accept { color: var(--violet); }
+.status #mode.plan { color: #48968c; }
+.status #mode.bashm { color: #fd5db1; }
+.status #mode.vimm { color: var(--green); }
+#eggs:not(:empty)::after { content: " · "; }
+.echo .user-wrap.bash .caret, .echo .user-wrap.bash .txt { color: #fd5db1; }
+.out-pre { white-space: pre-wrap; overflow-wrap: anywhere; }
+.term .fall { transition: transform 1.2s cubic-bezier(.55,0,1,.45), opacity 1.2s ease-in; }
+.term .rise { transition: transform .9s var(--ease), opacity .6s; }
+#bye { position: fixed; inset: 0; z-index: 45; background: #000; padding: 24px; font: 14px/1.6 var(--mono); color: var(--fg); opacity: 0; pointer-events: none; transition: opacity .35s; }
+#bye.on { opacity: 1; pointer-events: auto; }
+#bye .dim { color: var(--dim); }
+
 /* fx */
 #flash { position: fixed; inset: 0; z-index: 30; pointer-events: none; background: var(--clay); opacity: 0; }
 #flash.go { animation: flash .8s ease-out; }
@@ -374,13 +407,6 @@ canvas#confetti { position: fixed; inset: 0; width: 100vw; height: 100vh; pointe
 .inbox input { all: unset; flex: 1; min-width: 0; color: var(--fg); caret-color: var(--clay); font: inherit; min-height: 28px; }
 .inbox input::placeholder { color: var(--faint); }
 .vim .inbox { border-color: var(--green); }
-.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
-.chips button {
-  all: unset; cursor: pointer; padding: 7px 12px; border-radius: 999px; font-size: 12.5px;
-  border: 1px solid var(--line); color: var(--dim); transition: color .2s, border-color .2s, background .2s;
-}
-.chips button:hover { color: var(--fg); border-color: var(--faint); background: #1e1e1c; }
-.chips button:focus-visible { outline: 2px solid var(--clay); }
 .status { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 4px 2ch; padding: 8px 2px 0; font-size: 12px; color: var(--faint); font-variant-numeric: tabular-nums; }
 .status .mode { color: var(--violet); }
 .yolo .status .mode { color: var(--red); }
@@ -457,6 +483,8 @@ dialog.rr::backdrop { background: rgba(8,8,7,.85); backdrop-filter: blur(6px); }
   .ticket { padding: 22px 20px 20px; }
   .ticket .perf { margin-left: -20px; margin-right: -20px; }
   .inbox input { font-size: 16px; }
+  .menu .it { grid-template-columns: 1fr; gap: 0; padding: 3px 0; }
+  .menu.keys { grid-template-columns: 1fr; }
   .sp-shell { font-size: 12.5px; }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -482,7 +510,7 @@ dialog.rr::backdrop { background: rgba(8,8,7,.85); backdrop-filter: blur(6px); }
       </button>
       <button class="btn ghost" id="go-mute" type="button">Sans le son</button>
     </div>
-    <p class="sp-note">Prends ton temps : touche l'écran pour avancer, ou mets en pause en bas.</p>
+    <p class="sp-note">Touche l'écran pour avancer.</p>
   </div>
 </div>
 
@@ -516,7 +544,7 @@ dialog.rr::backdrop { background: rgba(8,8,7,.85); backdrop-filter: blur(6px); }
     </div>
 
     <div class="blk" data-step data-think="2600" data-verb="Réfléchit à un truc stylé" data-read="2200">
-      <div class="msg ln"><span class="dot">⏺</span><span>Avec plaisir. Je commence par mettre son âge à jour.</span></div>
+      <div class="msg ln"><span class="dot">⏺</span><span>Je commence par son âge.</span></div>
     </div>
 
     <div class="blk" data-step data-read="1400">
@@ -542,7 +570,7 @@ dialog.rr::backdrop { background: rgba(8,8,7,.85); backdrop-filter: blur(6px); }
     <div class="blk" data-step data-think="1800" data-verb="Compile" data-read="2600" data-stagger="600">
       <div class="msg tool ln"><span class="dot">⏺</span><span><span class="tool-name">Bash</span>(swift build -c release)</span></div>
       <div class="res ln"><span class="elbow">⎿</span><span>Compiling Constantin 18.0…</span></div>
-      <div class="res ln"><span></span><span><span class="green">Build complete!</span> 0 warning, 2 ou 3 regrets.</span></div>
+      <div class="res ln"><span></span><span><span class="green">Build complete!</span> (18.00s)</span></div>
     </div>
 
     <div class="blk" data-step data-think="2200" data-verb="Prépare la surprise" data-read="7500" data-stagger="700">
@@ -550,7 +578,7 @@ dialog.rr::backdrop { background: rgba(8,8,7,.85); backdrop-filter: blur(6px); }
       <div class="banner-wrap ln" id="banner" role="img" aria-label="Joyeux 18 ans Constantin"></div>
       <div class="lede">
         <p class="ln">Joyeux anniversaire Constantin. <b>18 ans</b>, enfin majeur.</p>
-        <p class="ln">Hugo m'a demandé de te préparer un petit truc. J'ai fait de mon mieux, il a quand même tout relu derrière moi.</p>
+        <p class="ln">Hugo voulait un truc stylé. Il a relu chaque ligne, donc les fautes, c'est lui.</p>
       </div>
     </div>
 
@@ -573,13 +601,13 @@ dialog.rr::backdrop { background: rgba(8,8,7,.85); backdrop-filter: blur(6px); }
 
     <div class="blk" data-step data-think="2000" data-verb="Fouille dans les souvenirs" data-stagger="1100" data-read="4000">
       <div class="msg tool ln"><span class="dot">⏺</span><span><span class="tool-name">Search</span>(pattern: "private joke", path: "~/souvenirs")</span></div>
-      <div class="res ln"><span class="elbow">⎿</span><span>J'en ai trouvé quelques-unes. Je n'ai pas tout le contexte, mais toi si.</span></div>
+      <div class="res ln"><span class="elbow">⎿</span><span id="found-n">Found 6 files</span></div>
       <div class="hits" id="hits"></div>
     </div>
 
     <div class="blk" data-step data-think="1600" data-verb="Regarde les photos" data-stagger="1900" data-read="4000">
       <div class="msg tool ln"><span class="dot">⏺</span><span><span class="tool-name">Read</span>(~/photos/*)</span></div>
-      <div class="res ln"><span class="elbow">⎿</span><span>8 photos. J'ai quelques commentaires.</span></div>
+      <div class="res ln"><span class="elbow">⎿</span><span>Read 8 images</span></div>
       <div class="gallery" id="gallery"></div>
     </div>
 
@@ -602,7 +630,7 @@ dialog.rr::backdrop { background: rgba(8,8,7,.85); backdrop-filter: blur(6px); }
     </div>
 
     <div class="blk" data-step data-think="1600" data-verb="Prend conscience de son erreur" data-read="1800">
-      <div class="msg ln"><span class="dot">⏺</span><span><b class="ty">You're absolutely right!</b> C'est une omission grave. Je corrige.</span></div>
+      <div class="msg ln"><span class="dot">⏺</span><span><b class="ty">You're absolutely right!</b></span></div>
     </div>
 
     <div class="blk" data-step data-read="5500" data-stagger="400">
@@ -627,12 +655,12 @@ dialog.rr::backdrop { background: rgba(8,8,7,.85); backdrop-filter: blur(6px); }
     </div>
 
     <div class="blk" data-step data-type="gate" data-think="1500" data-verb="Attends" data-stagger="700">
-      <div class="msg ln"><span class="dot">⏺</span><span>…attends. Hugo a laissé quelque chose pour toi.</span></div>
+      <div class="msg ln"><span class="dot">⏺</span><span>Attends. Hugo a laissé un truc.</span></div>
       <div class="perm ln" id="perm">
         <h3>Cadeau de Hugo</h3>
         <div class="body">
           <div class="q">Débloquer <b>1 mois de Claude Pro</b> pour Constantin ?</div>
-          <div class="dim">Livré avec une quantité déraisonnable de thé froid.</div>
+          <div class="dim">Fini les limites à 2h du mat.</div>
         </div>
         <div class="q">Do you want to proceed?</div>
         <ul class="opts" role="listbox" aria-label="Accepter le cadeau ?">
@@ -647,41 +675,31 @@ dialog.rr::backdrop { background: rgba(8,8,7,.85); backdrop-filter: blur(6px); }
 
     <div class="blk" data-step data-read="1800" data-stagger="500">
       <div class="msg tool ln"><span class="dot">⏺</span><span><span class="tool-name">Bash</span>(claude /upgrade --plan pro --months 1 --gift)</span></div>
-      <div class="res ln"><span class="elbow">⎿</span><span><span class="green">Abonnement activé.</span> Les rate limits, c'est plus ton problème.</span></div>
-    </div>
-
-    <div class="blk" data-step data-think="2000" data-verb="Vide les rayons" data-read="3000" data-stagger="600">
-      <div class="msg tool ln"><span class="dot">⏺</span><span><span class="tool-name">Bash</span>(migros commande "thé froid" --quantité beaucoup)</span></div>
-      <div class="res ln"><span class="elbow">⎿</span><span><span class="green">Commande prête.</span> Livraison en main propre par Hugo.</span></div>
-      <div class="res ln"><span></span><span>warning: stock du Migros le plus proche épuisé. On sait tous pourquoi.</span></div>
+      <div class="res ln"><span class="elbow">⎿</span><span><span class="green">✓</span> Claude Pro activé pour constantin</span></div>
     </div>
 
     <div class="blk" data-step data-read="6500">
       <div class="ticket-wrap ln">
-        <div class="ticket" id="ticket" role="group" aria-label="Cadeau : un mois de Claude Pro et beaucoup de thé froid Migros, offert par Hugo">
+        <div class="ticket" id="ticket" role="group" aria-label="Cadeau : un mois de Claude Pro, offert par Hugo">
           <svg class="mark" viewBox="0 0 100 100" aria-hidden="true"><g stroke="#1d0f0a" stroke-width="9" stroke-linecap="round"><path d="M50 8v84M8 50h84M20 20l60 60M80 20L20 80"/></g></svg>
           <div class="top"><span>BON CADEAU · N° 18</span><span>03.10.2026</span></div>
           <div class="big">1 mois de<br>Claude Pro</div>
-          <div class="sub">+ une quantité déraisonnable de thé froid Migros</div>
+          <div class="sub">Offert par Hugo, pour tes 18 ans.</div>
           <div class="perf"></div>
           <div class="receipt">
-            <div class="rc"><span>Claude Pro, 1 mois</span><span class="d"></span><b>×1</b></div>
-            <div class="rc"><span>Thé froid Migros</span><span class="d"></span><b>×beaucoup</b></div>
-            <div class="rc"><span>Usage limits</span><span class="d"></span><b>×0</b></div>
+            <div class="rc"><span>Claude Pro</span><span class="d"></span><b>1 mois</b></div>
+            <div class="rc"><span>Usage limits</span><span class="d"></span><b>0</b></div>
           </div>
-          <div class="fine">Offert par Hugo, pour tes 18 ans.<br>À récupérer en main propre. Non échangeable contre une chaise.</div>
+          <div class="fine">Non échangeable contre une chaise.</div>
+          <button class="redeem" id="redeem" type="button">Redeem <span aria-hidden="true">→</span></button>
           <div class="stamp" aria-hidden="true"><small>✻ 18 ✻</small>CERTIFIÉ<br>MAJEUR</div>
         </div>
       </div>
     </div>
 
     <div class="blk" data-step data-read="2600" data-stagger="600">
-      <div class="msg ln"><span class="dot">⏺</span><span>Joyeux anniversaire Constantin. Profite bien de tes 18 ans, de Claude Pro et du thé froid (avec modération).</span></div>
+      <div class="msg ln"><span class="dot">⏺</span><span>Joyeux anniversaire mec.</span></div>
       <div class="res ln"><span></span><span>— Hugo</span></div>
-    </div>
-
-    <div class="blk" data-step data-read="0">
-      <div class="msg ln"><span class="dot faint">⏺</span><span class="dim">Psst, c'est pas fini. Il y a 9 easter eggs cachés sur cette page. Tape <b style="color:var(--fg)">/help</b> en bas pour commencer.</span></div>
     </div>
 
     </div><!-- /log -->
@@ -689,25 +707,20 @@ dialog.rr::backdrop { background: rgba(8,8,7,.85); backdrop-filter: blur(6px); }
     <div class="tail" id="tail">
       <div id="echoes" aria-live="polite"></div>
       <form class="inbox" id="inbox" autocomplete="off">
-        <span class="caret" aria-hidden="true">&gt;</span>
-        <label for="cmd" class="sr">Écrire une commande</label>
-        <input id="cmd" type="text" placeholder='essaie "souffle les bougies"' spellcheck="false" autocapitalize="off" autocorrect="off" enterkeyhint="send">
+        <span class="caret" id="pchar" aria-hidden="true">&gt;</span>
+        <label for="cmd" class="sr">Message à Claude</label>
+        <input id="cmd" type="text" spellcheck="false" autocapitalize="off" autocorrect="off" enterkeyhint="send">
       </form>
-      <div class="chips" id="chips">
-        <button type="button" data-cmd="souffle les bougies">souffle les bougies</button>
-        <button type="button" data-cmd="ls">ls</button>
-        <button type="button" data-cmd="git log">git log</button>
-        <button type="button" data-cmd="/help">/help</button>
-      </div>
+      <div class="menu" id="menu" role="listbox" aria-label="Commandes" hidden></div>
       <div class="status">
-        <span class="mode" id="mode">⏵⏵ majorité on</span>
-        <span><span id="eggs">eggs</span> · <span id="age">majeur</span></span>
+        <span id="mode">? for shortcuts</span>
+        <span><span id="eggs"></span><span id="age"></span></span>
       </div>
     </div>
   </div>
 </main>
 
-<footer>fait avec amour (et un peu de Claude) par Hugo · 03.10.2026</footer>
+<footer>Hugo · 03.10.2026</footer>
 
 <!-- dock -->
 <div class="dock" id="dock" role="toolbar" aria-label="Lecture">
@@ -727,6 +740,7 @@ dialog.rr::backdrop { background: rgba(8,8,7,.85); backdrop-filter: blur(6px); }
 <button class="follow-pill" id="pill" type="button">↓ la suite est plus bas</button>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+<div id="bye" aria-live="polite"></div>
 <div id="flash"></div>
 <svg id="burst" viewBox="0 0 100 100" aria-hidden="true"><g stroke="#d97757" stroke-width="7" stroke-linecap="round"><path d="M50 4v92M4 50h92M17 17l66 66M83 17 17 83"/></g></svg>
 <canvas id="confetti" aria-hidden="true"></canvas>
@@ -746,7 +760,7 @@ dialog.rr::backdrop { background: rgba(8,8,7,.85); backdrop-filter: blur(6px); }
 <dialog class="rr" id="rr" aria-label="secret_NE_PAS_OUVRIR.mp4">
   <div class="rr-bar"><div class="lights"><button type="button" id="rr-x" aria-label="Fermer"></button></div><div>secret_NE_PAS_OUVRIR.mp4</div><div></div></div>
   <div class="rr-video" id="rr-video"></div>
-  <div class="rr-cap"><span>Tu viens de te faire rickroll à 18 ans. C'est un rite de passage.</span><button class="btn ghost" id="rr-close" type="button" style="min-height:40px">Fermer</button></div>
+  <div class="rr-cap"><span>Le vrai, Hugo te l'active à la main.</span><button class="btn ghost" id="rr-close" type="button" style="min-height:40px">Fermer</button></div>
 </dialog>
 
 <script>
@@ -759,12 +773,12 @@ const BIRTHDAY = "2026-10-03T00:00:00+02:00";
 
 // Private jokes : file/line = déco, text = la blague, note = commentaire de Claude (optionnel).
 const JOKES = [
-  { file: "souvenirs/epfl.md",     line: 12,   text: "« C'est où le Rolex ? », demandé devant le Rolex.", note: "Photo à l'appui, plus bas." },
-  { file: "souvenirs/casiers.md",  line: 1,    text: "LE CASIER.", note: "Je n'en sais pas plus, et je crois que c'est mieux comme ça." },
-  { file: "souvenirs/apple.txt",   line: 404,  text: "« T'inquiète, c'est juste un petit bug. »", note: "Apple n'était pas d'accord. CVE publiée." },
-  { file: "souvenirs/migros.csv",   line: 24,   text: "Thé froid citron ×24", note: "Les courses de la semaine. Enfin, du lundi." },
-  { file: "souvenirs/git-log.txt", line: 1,    text: "fix", note: "Son commit message préféré. Et aussi le seul." },
-  { file: "souvenirs/claude.log",  line: 9999, text: "« Attends, je demande à Claude. »", note: "Environ toutes les quatre minutes." },
+  { file: "souvenirs/epfl.md",     line: 12,   text: "« Attends j'arrive je prends juste une branche Cailler ».", note: "on sent la passion." },
+  { file: "souvenirs/casiers.md",  line: 1,    text: "The casier scheme.", note: "Je n'en sais pas plus, et je crois que c'est mieux comme ça." },
+  { file: "souvenirs/apple.txt",   line: 404,  text: "« Oh, une faille dans iOS. »", note: "Visiblement. CVE publiée." },
+  { file: "souvenirs/migros.csv",   line: 24,   text: "Thé froid citron ×24", note: "Une consommation quotidienne raisonnable finalement." },
+  { file: "souvenirs/git-log.txt", line: 1,    text: "fix", note: "Son commit message préféré." },
+  { file: "souvenirs/claude.log",  line: 9999, text: "« Attends, je demande à Claude. »", note: "Ne comprends pas l'algo derrière." },
 ];
 
 // Photos. `alt` + `live` = deux prises qui alternent, façon Live Photo.
@@ -833,6 +847,7 @@ $("#hits").innerHTML = JOKES.map(j => `
     ${j.note ? `<div class="note">${esc(j.note)}</div>` : ""}
   </div>`).join("");
 
+$("#found-n").textContent = `Found ${JOKES.length} files`;
 const LIVE_ICON = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="2.5" fill="currentColor"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="9.5" stroke-dasharray="1.6 2.2"/></svg>`;
 $("#gallery").innerHTML = PHOTOS.map((p, k) => `
   <figure class="shot ln${p.live ? " live" : ""}">
@@ -1040,6 +1055,7 @@ async function run() {
   $("#dock").classList.add("away");
   $("#tail").classList.add("on");
   follow($("#tail"), true);
+  if (fine) cmd.focus({ preventScroll: true });
 }
 
 function rush() {
@@ -1050,7 +1066,7 @@ function rush() {
 
 // Toucher le terminal = passer à la suite
 $("#term").addEventListener("click", e => {
-  if (e.target.closest("button, a, input, figure, .perm, .ticket, form, .chips")) return;
+  if (e.target.closest("button, a, input, figure, .perm, .ticket, form, .menu")) return;
   if (String(getSelection())) return;
   skipReq = true;
 });
@@ -1166,37 +1182,36 @@ function loop() {
 /* ============================================================
    EASTER EGGS
    ============================================================ */
-const EGGS = { rickroll: "le fichier secret", sudo: "sudo", vim: "sortir de vim", close: "le bouton rouge", star: "le ✻", yolo: "le mode YOLO", candles: "les bougies", aura: "l'aura", tea: "le stock de thé froid" };
-const N_EGGS = Object.keys(EGGS).length;
-let found = new Set(store.get("c22-eggs", []).filter(k => k in EGGS));
-const renderEggs = () => { $("#eggs").textContent = `eggs ${found.size}/${N_EGGS}`; };
+const EGGS = ["rickroll", "close", "star", "sudo", "vim", "yolo", "candles", "tea", "rm", "exit"];
+const N_EGGS = EGGS.length;
+let found = new Set(store.get("c22-eggs2", []).filter(k => EGGS.includes(k)));
+const renderEggs = () => { $("#eggs").textContent = found.size ? `✻ ${found.size}/${N_EGGS}` : ""; };
 renderEggs();
 let toastT;
 function toast(html) {
   const t = $("#toast"); t.innerHTML = html; t.classList.add("on");
-  clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove("on"), 3000);
+  clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove("on"), 2600);
 }
 function egg(k) {
   if (found.has(k)) return;
-  found.add(k); store.set("c22-eggs", [...found]); renderEggs(); sfx.pop();
+  found.add(k); store.set("c22-eggs2", [...found]); renderEggs();
   const all = found.size === N_EGGS;
-  setTimeout(() => toast(all ? `<span class="clay">✻</span> ${N_EGGS}/${N_EGGS}. Tous trouvés. Respect.` : `<span class="clay">✻</span> Easter egg trouvé : ${esc(EGGS[k])} (${found.size}/${N_EGGS})`), 350);
-  if (all) setTimeout(() => { confetti(260); sfx.chord(); }, 400);
+  setTimeout(() => { sfx.pop(); toast(all ? `<span class="clay">✻</span> ${N_EGGS}/${N_EGGS}. Rien ne t'échappe.` : `<span class="clay">✻</span> ${found.size}/${N_EGGS}`); }, 400);
+  if (all) setTimeout(() => { confetti(260); sfx.chord(); }, 500);
 }
 
-// Les trois boutons de la fenêtre
+// Boutons de la fenêtre
 const win = $("#win");
 const shakeWin = () => { win.classList.remove("shake"); void win.offsetWidth; win.classList.add("shake"); };
-$("#l-close").onclick = () => { shakeWin(); sfx.err(); toast("Impossible de fermer. T'as 18 ans, assume."); egg("close"); };
+$("#l-close").onclick = () => { shakeWin(); sfx.err(); toast("T'as 18 ans. On ne fuit plus."); egg("close"); };
 $("#l-min").onclick = () => {
   win.classList.add("minimized");
-  setTimeout(() => { win.classList.remove("minimized"); toast("On ne cache pas ses 18 ans."); }, 900);
+  setTimeout(() => win.classList.remove("minimized"), 900);
 };
 $("#l-max").onclick = () => {
   const d = document;
   if (d.fullscreenElement) d.exitFullscreen?.();
   else if (d.documentElement.requestFullscreen) d.documentElement.requestFullscreen().catch(() => {});
-  else toast("Pas de plein écran ici. Ton iPhone a dit non.");
 };
 
 // Le ✻ tapé 5 fois
@@ -1210,14 +1225,15 @@ $("#star").onclick = () => {
 const rr = $("#rr");
 function rickroll() {
   if (rr.open) return;
-  $("#rr-video").innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?autoplay=1&playsinline=1&rel=0" title="secret_NE_PAS_OUVRIR.mp4" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>`;
+  $("#rr-video").innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?autoplay=1&playsinline=1&rel=0" title="Redeem" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>`;
   wasPlaying = playing; setPlaying(false); rr.showModal(); egg("rickroll");
 }
 rr.addEventListener("close", () => { $("#rr-video").innerHTML = ""; setPlaying(wasPlaying); });
 $("#rr-close").onclick = () => rr.close();
 $("#rr-x").onclick = () => rr.close();
+$("#redeem").onclick = e => { e.stopPropagation(); rickroll(); };
 
-// Konami code
+// Konami
 const KONAMI = ["ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown", "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight", "b", "a"];
 let kIdx = 0;
 function konami(key) {
@@ -1226,99 +1242,291 @@ function konami(key) {
 }
 
 /* ============================================================
-   COMMANDES
+   CHAT (le vrai prompt Claude Code)
    ============================================================ */
-const echoes = $("#echoes"), cmd = $("#cmd");
+const echoes = $("#echoes"), cmd = $("#cmd"), inbox = $("#inbox"), menu = $("#menu"), modeEl = $("#mode");
 const out = (s, cls = "") => `<div class="msg"><span class="dot">⏺</span><span class="${cls}">${s}</span></div>`;
-const sub = s => `<div class="res"><span class="elbow">⎿</span><span>${s}</span></div>`;
-let vim = false;
+const tool = s => `<div class="msg tool"><span class="dot">⏺</span><span>${s}</span></div>`;
+const sub = (s, cls = "") => `<div class="res"><span class="elbow">⎿</span><span class="${cls}">${s}</span></div>`;
+const pre = s => `<div class="res"><span></span><span class="out-pre">${s}</span></div>`;
+const PLACEHOLDERS = ['Try "écris un haïku sur mes 18 ans"', 'Try "explique-moi ce site"', 'Try "fix the bug in Constantin.swift"'];
+cmd.placeholder = PLACEHOLDERS[Math.random() * PLACEHOLDERS.length | 0];
+
+let bash = false, vimMode = false, modeIdx = 0, busy = false, abortReq = false, menuSel = 0, menuItems = [];
 const hist = []; let hIdx = 0;
 
-function say(prompt, html) {
+function block(html, cls = "") {
   const d = document.createElement("div");
-  d.className = "echo";
-  d.innerHTML = `<div class="user-wrap"><div class="user"><span class="caret">&gt;</span><span class="txt">${esc(prompt)}</span></div></div><div style="margin-top:10px">${html}</div>`;
-  echoes.append(d);
-  requestAnimationFrame(() => follow(d, true));
+  d.className = "echo " + cls; d.innerHTML = html;
+  echoes.append(d); requestAnimationFrame(() => follow(d, true));
   return d;
 }
+const userEcho = (t, isBash) => block(`<div class="user-wrap${isBash ? " bash" : ""}"><div class="user"><span class="caret">${isBash ? "!" : "&gt;"}</span><span class="txt">${esc(t)}</span></div></div>`);
+const add = (d, html) => { d.insertAdjacentHTML("beforeend", `<div style="margin-top:8px">${html}</div>`); follow(d, true); };
 
-const LS = () => out(`<span class="dim">Constantin.swift   photos/   souvenirs/   </span><button class="file-btn" data-run="cat cadeau.txt" type="button">cadeau.txt</button>   <button class="file-btn danger" data-run="open secret_NE_PAS_OUVRIR.mp4" type="button">secret_NE_PAS_OUVRIR.mp4</button>`);
-const SIMPLE = {
-  "/help": () => out("Ce que tu peux essayer :") +
-    sub("souffle les bougies · ls · git log · cat cadeau.txt · /cost · /model · /exit · merci") +
-    sub(`<span class="clay">${N_EGGS} easter eggs</span> cachés. Certains se tapent, d'autres se touchent.`),
-  "ls": LS, "ls -la": LS, "ls -l": LS, "ll": LS,
-  "git log": () => out(`<span class="clay">a1f0c18</span> fix<br><span class="clay">9e2b7d4</span> fix stuff<br><span class="clay">4c51e09</span> wip<br><span class="clay">0d3a6f2</span> ok<br><span class="clay">7b18c22</span> 18`) + sub("Cinq commits, six mots. Un style à part."),
-  "cat cadeau.txt": () => out("1 mois de Claude Pro. Offert par Hugo.") + sub(`<button class="file-btn" data-goto="ticket" type="button">revoir le bon cadeau</button>`),
-  "/cost": () => out("Total cost : <b>0,00 CHF</b>") + sub("Pour toi, en tout cas. C'est un cadeau."),
-  "/model": () => out("Modèle actuel : <b>Constantin 18.0</b> (stable)") + sub("La 17.x n'est plus supportée. Pas de rollback possible."),
-  "/upgrade": () => out("Déjà fait, regarde un peu plus haut.") + sub("Merci qui ? Merci Hugo."),
-  "/clear": () => out("Non. Cette page reste comme ça."),
-  "/exit": () => out("Impossible de quitter tes 18 ans.", "red") + sub("Process still running. PID 2008."),
-  "exit": () => SIMPLE["/exit"](),
-  "/status": () => out("Statut : majeur.") + sub($("#age").textContent),
-  "merci": () => out("Pas à moi, à Hugo.") + sub("(mais de rien quand même)"),
-  "hugo": () => out("Hugo te souhaite un joyeux anniv. Encore."),
-  "xcode": () => out("Xcode ne répond pas.", "dim") + sub("Forcer à quitter ? Comme d'hab."),
-  "swift build": () => out(`<span class="green">Build complete!</span> Constantin 18.0 tourne toujours.`),
-  "rm -rf /": () => { shakeWin(); sfx.err(); return out("Bien essayé.", "red") + sub("Ici, c'est Hugo qui a les droits."); },
-  "git push --force": () => out("Rejeté.", "red") + sub("Même toi tu sais que c'est une mauvaise idée."),
-  "/compact": () => { document.body.classList.add("compact"); setTimeout(() => document.body.classList.remove("compact"), 700); return out("Conversation compactée.") + sub("Visuellement, c'était pas une super idée."); },
-};
-
-function runCmd(raw) {
-  const q = raw.trim().toLowerCase().replace(/\s+/g, " ");
-  if (!q) return;
-  hist.push(raw); hIdx = hist.length;
-
-  if (vim) {
-    if (/^:(q|q!|wq|x|wq!)$/.test(q)) { vim = false; document.body.classList.remove("vim"); cmd.placeholder = 'essaie "souffle les bougies"'; egg("vim"); return say(raw, out("Sorti de vim. Mieux que la moitié des devs.", "green")); }
-    return say(raw, out("Toujours dans vim.", "dim") + sub("Indice : <b>:q</b>"));
-  }
-  if (/^(vim|vi|nvim)\b/.test(q)) { vim = true; document.body.classList.add("vim"); cmd.placeholder = "-- INSERT --"; return say(raw, out("T'es dans vim maintenant. Bonne chance.") + sub("Certains n'en sont jamais ressortis.")); }
-  if (/^sudo\b/.test(q)) { sfx.err(); egg("sudo"); return say(raw, out("constantin n'est pas dans le fichier sudoers.", "red") + sub("Cet incident sera signalé à Hugo.")); }
-  if (/secret|rick|never gonna|dqw4w9wgxcq/.test(q)) { say(raw, out("Ouverture de secret_NE_PAS_OUVRIR.mp4…")); setTimeout(rickroll, 600); return; }
-  if (/dangerously-skip-permissions|yolo/.test(q)) {
-    document.body.classList.add("yolo"); $("#mode").textContent = "⏵⏵ bypass permissions on"; sfx.err(); egg("yolo");
-    setTimeout(() => { document.body.classList.remove("yolo"); $("#mode").textContent = "⏵⏵ majorité on"; }, 6000);
-    return say(raw, out("Mode YOLO activé. Plus aucune permission demandée.", "red") + sub("Comme à 18 ans, en fait. Ça se calme dans 6 secondes."));
-  }
-  if (/aura/.test(q)) {
-    document.body.classList.remove("aura"); void document.body.offsetWidth; document.body.classList.add("aura"); egg("aura");
-    return say(raw, out("Aura +1000.") + sub("Total actuel : beaucoup trop. Voir photo 1."));
-  }
-  if (/bougie|souffle|candle|blow/.test(q)) return candles(raw);
-  if (/th[eé] ?froid|ice ?tea|migros|^th[eé]$/.test(q)) {
-    egg("tea"); sfx.pop(); confetti(160, ["THÉ", "FROID", "✻", "THÉ"]);
-    return say(raw, out("Inventaire : <b>0</b> thé froid restant.") + sub("Constantin est passé avant toi.") +
-      `<div class="cake">   ______\n  /_____/|\n |  THÉ | |\n | FROID| |\n |  *   | /\n |______|/</div>`);
-  }
-  const f = SIMPLE[q];
-  say(raw, f ? f() : out("Je ne transmets pas les messages à Hugo, désolé.") + sub("Écris-lui directement, il attend. Ou tape <b>/help</b>."));
+const VERBS = ["Infusing", "Brewing", "Réfléchit", "Mijote", "Glougloute", "Compile", "Souffle", "Cogite"];
+async function spin(d, ms) {
+  const s = document.createElement("div"); s.className = "spin"; s.style.marginTop = "10px";
+  s.innerHTML = `<span class="g">✻</span>${VERBS[Math.random() * VERBS.length | 0]}… <span class="k">(<span class="sec">0</span>s · esc to interrupt)</span>`;
+  d.append(s); follow(s, true);
+  const t0 = performance.now(); let i = 0;
+  const iv = setInterval(() => { $(".g", s).textContent = GLYPHS[i++ % GLYPHS.length]; $(".sec", s).textContent = Math.floor((performance.now() - t0) / 1000); }, 120);
+  abortReq = false;
+  while (performance.now() - t0 < ms && !abortReq) await sleep(40);
+  clearInterval(iv); s.remove();
+  if (abortReq) { add(d, sub("Interrupted by user", "red")); sfx.err(); return false; }
+  return true;
 }
-
-async function candles(raw) {
-  const flames = Array(18).fill('<span class="f">*</span>').join("");
-  const d = say(raw, out("Ok. 18 bougies, une seule tentative.") +
-    `<div class="cake">  ${flames}\n  ${"|".repeat(18)}\n ┌${"─".repeat(18)}┐\n │${" ".repeat(4)}CONSTANTIN${" ".repeat(4)}│\n │${"░".repeat(18)}│\n └${"─".repeat(18)}┘</div>`);
-  await sleep(reduce ? 0 : 1700);
-  $(".cake", d).classList.add("out");
-  d.insertAdjacentHTML("beforeend", `<div style="margin-top:8px">${sub('<span class="green">18/18 bougies éteintes.</span> Vœu enregistré. Chiffré de bout en bout, même moi je ne sais pas ce que c\'est.')}</div>`);
-  confetti(140); sfx.chord(); egg("candles");
+async function stream(d, text, cls = "") {
+  d.insertAdjacentHTML("beforeend", `<div style="margin-top:8px">${out("", "out-pre " + cls)}</div>`);
+  const span = d.lastElementChild.querySelector(".msg > span:last-child");
+  for (const ch of text) {
+    if (abortReq) break;
+    span.textContent += ch;
+    if (ch === "\n") follow(span, true);
+    await sleep(reduce ? 0 : 14 + Math.random() * 18);
+  }
+  if (abortReq) span.textContent = text;
   follow(d, true);
 }
 
-$("#inbox").addEventListener("submit", e => { e.preventDefault(); const v = cmd.value; cmd.value = ""; runCmd(v); });
-cmd.addEventListener("keydown", e => {
-  if (e.key === "ArrowUp" && hist.length) { e.preventDefault(); hIdx = Math.max(0, hIdx - 1); cmd.value = hist[hIdx]; }
-  else if (e.key === "ArrowDown" && hist.length) { e.preventDefault(); hIdx = Math.min(hist.length, hIdx + 1); cmd.value = hist[hIdx] || ""; }
-  else if (e.key.length === 1) sfx.tick();
+/* ---------- shell ---------- */
+const SWIFT = `struct Constantin: Human {
+    let age = 18
+    let isAdult = true
+    let canSignHisOwnPermissionSlips = true
+    let usesClaudeCode = true
+    let favoriteDrink = "Thé froid Migros"
+    let iceTeaPerDay: Liters = .unreasonable
+    let bloodType = "Thé froid, citron"
+}`;
+function shell(c, d) {
+  const q = c.trim(); const lq = q.toLowerCase();
+  if (/^(ls|ll|ls -la|ls -l|ls -a)$/.test(lq)) return pre(`CLAUDE.md  Constantin.swift  photos/  souvenirs/  <button class="file-btn danger" data-run="!open redeem.mp4" type="button">redeem.mp4</button>`);
+  if (/^ls (photos|souvenirs)/.test(lq)) return pre(lq.includes("photos") ? PHOTOS.map(p => esc(p.name)).join("  ") : JOKES.map(j => esc(j.file.split("/")[1])).join("  "));
+  if (/^cat .*constantin\.swift/.test(lq)) return pre(esc(SWIFT));
+  if (/^cat .*souvenirs/.test(lq)) return pre(JOKES.map(j => esc(j.text)).join("\n"));
+  if (/^cat .*claude\.md/.test(lq)) return pre(esc(CLAUDE_MD));
+  if (/^(open|cat|vlc|mpv|xdg-open|qlmanage).*redeem/.test(lq) || /rick|never gonna|dqw4w9wgxcq/.test(lq)) { setTimeout(rickroll, 500); return pre("Opening redeem.mp4…"); }
+  if (/^git log/.test(lq)) return pre(`<span class="clay">7b18c22</span> 18\n<span class="clay">a1f0c18</span> fix\n<span class="clay">9e2b7d4</span> fix\n<span class="clay">4c51e09</span> fix stuff\n<span class="clay">0d3a6f2</span> wip`);
+  if (/^git push.*(-f|--force)/.test(lq)) return pre(`<span class="red">! [rejected] main -> main (non-fast-forward)</span>\nPas le jour de son anniversaire.`);
+  if (/^git /.test(lq)) return pre("On branch main\nnothing to commit, working tree clean");
+  if (/^sudo\b/.test(lq)) { egg("sudo"); sfx.err(); return pre(`Password:\n<span class="red">constantin is not in the sudoers file. This incident will be reported.</span>\n\nIncident transmis à Hugo.`); }
+  if (/^rm -[a-z]*r[a-z]*f?[a-z]* +(\/|~|\*|\.)/.test(lq) || /^rm -rf/.test(lq)) { setTimeout(collapse, 300); return pre(`rm: removing ${esc(q.split(/\s+/).pop())}…`); }
+  if (/^(vim?|nvim|nano|emacs)\b/.test(lq)) { setVim(true); return pre(lq.startsWith("nano") || lq.startsWith("emacs") ? "Ici on utilise vim. -- INSERT --" : "-- INSERT --"); }
+  if (/^whoami$/.test(lq)) return pre("constantin");
+  if (/^pwd$/.test(lq)) return pre("/Users/hugo/anniv-constantin");
+  if (/^uptime$/.test(lq)) return pre("up 18 years, 0 days, 1 user, load averages: thé froid 2.4 1.8 1.2");
+  if (/^date$/.test(lq)) return pre(new Date().toString());
+  if (/^echo /.test(lq)) return pre(esc(q.slice(5)));
+  if (/^(swift build|xcodebuild)/.test(lq)) return lq.startsWith("swift") ? pre(`Compiling Constantin 18.0\n<span class="green">Build complete!</span> (18.00s)`) : pre(`<span class="red">xcodebuild: error: Xcode a cessé de répondre.</span>`);
+  if (/^(exit|logout)$/.test(lq)) { setTimeout(byeBye, 300); return pre(""); }
+  if (/^clear$/.test(lq)) { setTimeout(wipe, 100); return ""; }
+  if (/^claude\b.*(dangerously|yolo)/.test(lq)) { yolo(); return pre(`<span class="red">⚠ Bypassing Permissions mode</span>`); }
+  if (/^claude\b/.test(lq)) return pre("Tu es déjà dedans.");
+  if (/(th[eé] ?froid|ice ?tea|migros)/.test(lq)) { tea(); return pre(`${esc(q.split(" ")[0])}: 0 thé froid en stock`); }
+  return pre(`zsh: command not found: ${esc(q.split(/\s+/)[0])}`);
+}
+
+/* ---------- effets ---------- */
+function setVim(v) {
+  vimMode = v; inbox.classList.toggle("vim", v); renderMode();
+}
+function yolo() {
+  document.body.classList.add("yolo"); sfx.err(); egg("yolo");
+  modeEl.textContent = "⏵⏵ bypass permissions on"; modeEl.className = "bashm";
+  setTimeout(() => { document.body.classList.remove("yolo"); renderMode(); }, 6000);
+}
+function tea() {
+  egg("tea"); sfx.pop(); confetti(170, ["THÉ", "FROID", "THÉ", "✻"]);
+}
+async function collapse() {
+  if (reduce) { egg("rm"); return; }
+  const els = [...$$("#log > .blk.on"), ...$$("#echoes > .echo"), inbox, $(".status")];
+  sfx.tone(120, 1.2, { type: "sawtooth", vol: .04, slide: 30 });
+  els.forEach(el => {
+    el.classList.remove("rise"); el.classList.add("fall");
+    el.style.transform = `translate(${(Math.random() - .5) * 120}px, ${innerHeight + 200 + Math.random() * 300}px) rotate(${(Math.random() - .5) * 50}deg)`;
+    el.style.opacity = "0";
+  });
+  await sleep(2200);
+  els.forEach(el => { el.classList.remove("fall"); el.classList.add("rise"); el.style.transform = ""; el.style.opacity = ""; });
+  await sleep(900);
+  els.forEach(el => el.classList.remove("rise"));
+  egg("rm");
+  const d = block(""); add(d, out("Restauré depuis Time Machine. Ne refais pas ça."));
+}
+async function wipe() {
+  const els = [$("#log"), echoes];
+  els.forEach(el => { el.style.transition = "opacity .3s"; el.style.opacity = "0"; });
+  await sleep(1300);
+  els.forEach(el => { el.style.opacity = ""; });
+  await sleep(300);
+  const d = block(""); add(d, out("Non. On garde tout."));
+}
+async function byeBye() {
+  const b = $("#bye");
+  b.innerHTML = `<div class="dim">Bye!</div><div><span>hugo@MacBook-Pro anniv-constantin %</span> <span id="bye-t"></span><span class="cur"></span></div>`;
+  b.classList.add("on");
+  await sleep(1300);
+  const t = $("#bye-t");
+  for (const ch of "claude --continue") { t.textContent += ch; sfx.tick(); await sleep(70); }
+  await sleep(500);
+  b.classList.remove("on");
+  egg("exit");
+  const d = block(""); add(d, out("Re. On ne quitte pas la session le jour de ses 18 ans."));
+}
+async function candles(d) {
+  const flames = Array(18).fill('<span class="f">*</span>').join("");
+  add(d, `<div class="cake">  ${flames}\n  ${"|".repeat(18)}\n ┌${"─".repeat(18)}┐\n │${" ".repeat(4)}CONSTANTIN${" ".repeat(4)}│\n │${"░".repeat(18)}│\n └${"─".repeat(18)}┘</div>`);
+  await sleep(reduce ? 0 : 1800);
+  $(".cake", d).classList.add("out");
+  add(d, sub('<span class="green">18/18</span>'));
+  confetti(140); sfx.chord(); egg("candles");
+}
+
+/* ---------- slash commands ---------- */
+const CLAUDE_MD = `# CLAUDE.md
+
+## Constantin
+- 18 ans depuis le 03.10.2026
+- Carburant : thé froid Migros, citron
+- Commit messages : un mot, minuscule
+- Ne jamais laisser une chaise à sa portée`;
+const SLASH = {
+  "/clear":   ["Clear conversation history and free up context", () => { wipe(); return ""; }],
+  "/compact": ["Clear conversation history but keep a summary in context", () => {
+    document.body.classList.add("compact"); setTimeout(() => document.body.classList.remove("compact"), 650);
+    return sub("Compacted. ctrl+o to see full summary") + pre(`<span class="dim">Résumé : Constantin a 18 ans. Il boit du thé froid. Fin.</span>`); }],
+  "/cost":    ["Show the total cost and duration of the current session", () => pre(`Total cost:            $0.00\nTotal duration (API):  18y 0d 0h 0m\nTotal duration (wall): 18y 0d 0h 0m\nTotal code changes:    6 lines added, 2 lines removed\nUsage by model:\n       thé-froid-citron:  24 L`)],
+  "/doctor":  ["Diagnose and verify your Claude Code installation and settings", () => pre(`<span class="green">✓</span> Constantin 18.0.0\n<span class="green">✓</span> Majeur\n<span class="red">✗</span> Thé froid : stock critique\n<span class="red">✗</span> Sommeil : not found`)],
+  "/exit":    ["Exit the REPL", () => { setTimeout(byeBye, 200); return ""; }],
+  "/help":    ["Show help and available commands", () => pre(`Claude Code v18.0.0\n\nAlways review Claude's responses, especially when running code.\n\nUsage modes:\n• REPL: claude (interactive session)\n\nCommon tasks:\n• Ask questions about your codebase\n• Edit files\n• Run commands with ! prefix\n\nType / to see all commands.`)],
+  "/init":    ["Initialize a new CLAUDE.md file with codebase documentation", () => tool(`<span class="tool-name">Write</span>(CLAUDE.md)`) + sub("Wrote 7 lines to CLAUDE.md") + pre(`<span class="dim">${esc(CLAUDE_MD)}</span>`)],
+  "/model":   ["Set the AI model for Claude Code", () => pre(`Select model\n\n   1. Default (Opus)\n   2. Sonnet\n   3. Haiku\n <span class="violet">❯ 4. Constantin 18.0 ✔</span>\n\n<span class="dim">La 17.x n'est plus supportée.</span>`)],
+  "/status":  ["Show Claude Code status including version, model, account", () => pre(`Version:  18.0.0\nModel:    Constantin 18.0\nAccount:  constantin\nPlan:     Claude Pro (de la part de Hugo)\nStatus:   ${esc($("#age").textContent)}`)],
+  "/upgrade": ["Upgrade to Max for higher rate limits and more Opus", () => sub("Tu es déjà sur Claude Pro.") + pre(`Pour Max, demande à Hugo pour tes 19 ans.`)],
+  "/vim":     ["Toggle between Vim and Normal editing modes", () => { setVim(!vimMode); return sub(vimMode ? "Editor mode set to vim. Use Escape key to toggle between INSERT and NORMAL modes." : "Editor mode set to normal."); }],
+};
+
+/* ---------- Claude ---------- */
+let defaultI = 0;
+const DEFAULTS = [
+  "C'est ton anniversaire. Je ne travaille pas aujourd'hui.",
+  "Noté. Je transmets à Hugo. (Non.)",
+  "Je vais y réfléchir jusqu'à tes 19 ans.",
+  "Reformule, mais avec un thé froid à la main.",
+];
+async function ask(text, d) {
+  const q = text.toLowerCase();
+  if (!(await spin(d, 900 + Math.random() * 1300))) return;
+  if (modeIdx === 2) return stream(d, "Voici mon plan :\n1. Te souhaiter joyeux anniversaire.\n2. C'est tout.\n\nWould you like to proceed?");
+  if (/rick|never gonna/.test(q)) { setTimeout(rickroll, 600); return stream(d, "Ok."); }
+  if (/(dangerously|yolo)/.test(q)) { yolo(); return stream(d, "Mode bypass activé. Plus aucune permission ne sera demandée.", "red"); }
+  if (/(th[eé] ?froid|ice ?tea|migros)/.test(q)) {
+    add(d, tool(`<span class="tool-name">Bash</span>(migros stock --produit "thé froid")`) + sub("0 en stock"));
+    tea(); return stream(d, "Constantin est passé avant toi.");
+  }
+  if (/(bougie|souffle|g[aâ]teau|candle)/.test(q)) { await stream(d, "Une seule tentative."); return candles(d); }
+  if (/^(rm|sudo|ls|cat|git|vim|open|echo|pwd|whoami|uptime|date|swift|xcodebuild)\b/.test(q)) {
+    add(d, tool(`<span class="tool-name">Bash</span>(${esc(text)})`) + shell(text, d)); return;
+  }
+  if (/(redeem|cadeau|gift|lien)/.test(q)) return stream(d, "Le bouton Redeem, plus haut sur le bon. Vas-y.");
+  if (/(merci|thanks|thx|thank)/.test(q)) return stream(d, "Remercie Hugo. Moi j'ai juste tapé.");
+  if (/^(salut|hello|hey|yo|coucou|bonjour|slt|wesh)/.test(q)) return stream(d, "Salut Constantin. Joyeux anniversaire.");
+  if (/(qui es|t'es qui|tu es qui|who are you)/.test(q)) return stream(d, "Claude. Celui à qui tu demandes tout, toutes les quatre minutes.");
+  if (/hugo/.test(q)) return stream(d, "Il a écrit le prompt. J'ai fait le reste. Comme d'habitude.");
+  if (/(ha[iï]ku|po[eè]me|poem)/.test(q)) return stream(d, "Dix-huit bougies\nun thé froid à la main\ngit commit -m « fix »");
+  if (/(explique|c'est quoi ce site|what is this)/.test(q)) return stream(d, "Un site que Hugo a fait pour tes 18 ans. Avec moi. Il y a des choses cachées dedans. Je n'en dirai pas plus.");
+  if (/(bug|fix|swift|code)/.test(q)) return stream(d, "Pas aujourd'hui. Le seul bug dans Constantin.swift, c'est iceTeaPerDay.");
+  if (/(je t'aime|love you|ily)/.test(q)) return stream(d, "Je suis un modèle de langage. Mais c'est réciproque.");
+  if (/(âge|age|vieux|18)/.test(q)) return stream(d, "18 ans. Plus vieux que Swift, qui en a 12. Respect.");
+  if (/(blague|joke)/.test(q)) return stream(d, "Un dev Swift entre dans un bar. Xcode plante. Fin.");
+  return stream(d, DEFAULTS[defaultI++ % DEFAULTS.length]);
+}
+
+/* ---------- saisie ---------- */
+function renderMode() {
+  if (vimMode) { modeEl.textContent = "-- INSERT --"; modeEl.className = "vimm"; return; }
+  if (bash) { modeEl.textContent = "! for bash mode"; modeEl.className = "bashm"; return; }
+  const M = [["? for shortcuts", ""], ["⏵⏵ accept edits on (shift+tab to cycle)", "accept"], ["⏸ plan mode on (shift+tab to cycle)", "plan"]];
+  modeEl.textContent = M[modeIdx][0]; modeEl.className = M[modeIdx][1];
+}
+function setBash(v) { bash = v; inbox.classList.toggle("bash", v); $("#pchar").textContent = v ? "!" : ">"; renderMode(); }
+function closeMenu() { menu.hidden = true; menu.className = "menu"; menuItems = []; }
+function openMenu() {
+  const v = cmd.value;
+  if (!bash && v.startsWith("/")) {
+    menuItems = Object.keys(SLASH).filter(k => k.startsWith(v.toLowerCase().split(" ")[0]));
+    if (!menuItems.length) return closeMenu();
+    menuSel = Math.min(menuSel, menuItems.length - 1);
+    menu.className = "menu"; menu.hidden = false;
+    menu.innerHTML = menuItems.map((k, i) => `<button type="button" class="it" role="option" data-slash="${k}" aria-selected="${i === menuSel}"><span>${k}</span><span class="d">${SLASH[k][0]}</span></button>`).join("");
+    follow(menu, true);
+  } else closeMenu();
+}
+function showKeys() {
+  menuItems = [];
+  menu.className = "menu keys"; menu.hidden = false;
+  menu.innerHTML = `<span>! for bash mode</span><span>double tap esc to clear input</span><span>/ for commands</span><span>shift + tab to auto-accept edits</span><span>@ for file paths</span><span>\\⏎ for newline</span>`;
+  follow(menu, true);
+}
+cmd.addEventListener("input", () => {
+  if (!bash && cmd.value.startsWith("!")) { cmd.value = cmd.value.slice(1); setBash(true); }
+  if (cmd.value === "?" && !bash) { cmd.value = ""; return menu.className.includes("keys") && !menu.hidden ? closeMenu() : showKeys(); }
+  menuSel = 0; openMenu();
 });
+let lastEsc = 0;
+cmd.addEventListener("keydown", e => {
+  if (e.key === "Tab" && e.shiftKey) { e.preventDefault(); modeIdx = (modeIdx + 1) % 3; renderMode(); return; }
+  if (!menu.hidden && menuItems.length) {
+    if (e.key === "ArrowDown" || e.key === "ArrowUp") { e.preventDefault(); menuSel = (menuSel + (e.key === "ArrowDown" ? 1 : -1) + menuItems.length) % menuItems.length; openMenu(); return; }
+    if (e.key === "Tab") { e.preventDefault(); cmd.value = menuItems[menuSel] + " "; closeMenu(); return; }
+    if (e.key === "Enter") { e.preventDefault(); const c = menuItems[menuSel]; cmd.value = ""; closeMenu(); submit(c); return; }
+  }
+  if (e.key === "Escape") {
+    e.preventDefault();
+    if (busy) { abortReq = true; return; }
+    if (!menu.hidden) return closeMenu();
+    const now = Date.now(); if (now - lastEsc < 500) cmd.value = ""; lastEsc = now; return;
+  }
+  if (e.key === "Backspace" && bash && !cmd.value) { e.preventDefault(); setBash(false); return; }
+  if (e.key === "ArrowUp" && hist.length) { e.preventDefault(); hIdx = Math.max(0, hIdx - 1); cmd.value = hist[hIdx]; return; }
+  if (e.key === "ArrowDown" && hist.length) { e.preventDefault(); hIdx = Math.min(hist.length, hIdx + 1); cmd.value = hist[hIdx] || ""; return; }
+  if (e.key.length === 1) sfx.tick();
+});
+menu.addEventListener("click", e => {
+  const b = e.target.closest("[data-slash]"); if (!b) return;
+  cmd.value = ""; closeMenu(); submit(b.dataset.slash); cmd.focus();
+});
+inbox.addEventListener("submit", e => { e.preventDefault(); const v = cmd.value; cmd.value = ""; closeMenu(); submit(v); });
+
+async function submit(raw) {
+  const text = raw.trim();
+  if (!text || busy) return;
+  hist.push((bash ? "!" : "") + text); hIdx = hist.length;
+  busy = true; inbox.setAttribute("aria-busy", "true");
+  try {
+    if (vimMode && /^:(q|q!|wq|x)$/.test(text)) {
+      const d = userEcho(text); setVim(false); egg("vim"); add(d, sub("Tu as quitté vim. Beaucoup ne peuvent pas en dire autant.", "green"));
+    } else if (bash) {
+      const d = userEcho(text, true); setBash(false); add(d, shell(text, d));
+    } else if (text.startsWith("/")) {
+      const k = text.toLowerCase().split(" ")[0];
+      const d = userEcho(text);
+      add(d, SLASH[k] ? SLASH[k][1]() : sub(`Unknown command: ${esc(k)}`, "red"));
+    } else if (/^:(q|q!|wq|x)$/.test(text)) {
+      const d = userEcho(text); add(d, sub("Tu n'es pas dans vim. Pour l'instant."));
+    } else {
+      const d = userEcho(text); await ask(text, d);
+    }
+  } finally {
+    busy = false; inbox.removeAttribute("aria-busy");
+  }
+}
 document.addEventListener("click", e => {
-  const c = e.target.closest("[data-cmd], [data-run], [data-goto]"); if (!c) return;
-  if (c.dataset.goto) { $("#" + c.dataset.goto).scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "center" }); return; }
-  runCmd(c.dataset.cmd || c.dataset.run);
+  const c = e.target.closest("[data-run]"); if (!c) return;
+  const r = c.dataset.run; if (r.startsWith("!")) { const d = userEcho(r.slice(1), true); add(d, shell(r.slice(1), d)); }
 });
 
 /* ============================================================
