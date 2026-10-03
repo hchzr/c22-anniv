@@ -9,7 +9,9 @@
 <meta property="og:type" content="website">
 <meta property="og:title" content="Joyeux 18 ans, Constantin">
 <meta property="og:description" content="Claude a quelque chose à te dire. De la part de Hugo.">
-<meta property="og:image" content="https://c22.hczr.ch/img/2.webp">
+<meta property="og:image" content="https://c22.hczr.ch/img/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23141413'/%3E%3Cg stroke='%23d97757' stroke-width='11' stroke-linecap='round'%3E%3Cpath d='M50 18v64M18 50h64M27 27l46 46M73 27L27 73'/%3E%3C/g%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -332,15 +334,26 @@ dialog.lb[open] { display: grid; grid-template-rows: minmax(0, 1fr) auto; }
 .ticket .perf::before, .ticket .perf::after { content: ""; position: absolute; top: -11px; width: 20px; height: 20px; border-radius: 50%; background: var(--bg); }
 .ticket .perf::before { left: -10px; } .ticket .perf::after { right: -10px; }
 .ticket .fine { font-size: 13.5px; line-height: 1.55; max-width: 50ch; }
-.ticket .cta {
-  display: inline-flex; align-items: center; gap: 1ch; margin-top: 18px; min-height: 46px;
-  background: #1d0f0a; color: #fbe9e1; text-decoration: none;
-  padding: 0 18px; border-radius: 10px; font-weight: 700; font-size: 14px;
-  transition: transform .2s var(--ease), background .2s; position: relative; z-index: 1;
-}
-.ticket .cta:hover { transform: translateY(-1px); background: #000; }
-.ticket .cta:focus-visible { outline-color: #1d0f0a; }
 .ticket .mark { position: absolute; right: -36px; bottom: -46px; width: 210px; height: 210px; opacity: .15; animation: spin 24s linear infinite; }
+
+.receipt { margin: 4px 0 0; display: grid; gap: 4px; font-size: 13.5px; max-width: 380px; }
+.rc { display: flex; align-items: baseline; gap: .6ch; }
+.rc .d { flex: 1; min-width: 2ch; border-bottom: 2px dotted rgba(29,15,10,.35); transform: translateY(-.3em); }
+.rc b { font-weight: 800; }
+.ticket .fine { margin-top: 14px; }
+.stamp {
+  position: absolute; right: 18px; bottom: 18px; z-index: 2; pointer-events: none;
+  width: 116px; height: 116px; border-radius: 50%; display: grid; place-content: center; text-align: center;
+  border: 3px solid #6e1d10; color: #6e1d10; font-weight: 800; font-size: 13px; line-height: 1.2; letter-spacing: .08em;
+  box-shadow: inset 0 0 0 4px var(--clay), inset 0 0 0 6px #6e1d10;
+  opacity: 0; transform: rotate(-14deg) scale(2.4); mix-blend-mode: multiply;
+}
+.stamp small { display: block; font-size: .8em; letter-spacing: .2em; }
+.on .stamp { animation: stamp .38s 1.6s cubic-bezier(.3,1.5,.5,1) forwards; }
+@keyframes stamp { to { opacity: .82; transform: rotate(-14deg) scale(1); } }
+.stream .c { visibility: hidden; }
+.stream .c.v { visibility: visible; }
+.ty { font-weight: 800; }
 
 /* fx */
 #flash { position: fixed; inset: 0; z-index: 30; pointer-events: none; background: var(--clay); opacity: 0; }
@@ -384,9 +397,9 @@ footer { max-width: 940px; margin: 22px auto 0; text-align: center; color: var(-
 .dock {
   position: fixed; left: 50%; bottom: calc(14px + env(safe-area-inset-bottom)); z-index: 20;
   transform: translateX(-50%);
-  width: min(560px, calc(100vw - 20px));
-  display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 6px;
-  padding: 6px; border-radius: 14px;
+  width: min(420px, calc(100vw - 20px));
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 6px;
+  padding: 4px 4px 4px 14px; border-radius: 12px;
   background: rgba(30,30,28,.84); backdrop-filter: blur(14px) saturate(1.3); -webkit-backdrop-filter: blur(14px) saturate(1.3);
   border: 1px solid #34332f;
   box-shadow: 0 16px 40px -10px rgba(0,0,0,.7);
@@ -396,8 +409,8 @@ footer { max-width: 940px; margin: 22px auto 0; text-align: center; color: var(-
 .dock .grp { display: flex; gap: 2px; }
 .dock .icon-btn { width: 42px; height: 42px; }
 .dock .icon-btn[aria-pressed="true"] { color: var(--clay); }
-.dock .speed { font-size: 12.5px; font-weight: 700; }
-.dock .mid { min-width: 0; padding: 0 6px; display: grid; gap: 6px; }
+.dock .mid { min-width: 0; display: grid; gap: 6px; }
+.dock .icon-btn[hidden] { display: none; }
 .dock .hint { font-size: 12px; color: var(--dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .dock .track { height: 3px; border-radius: 3px; background: #34332f; overflow: hidden; }
 .dock .bar { height: 100%; width: 0; background: var(--clay); border-radius: 3px; }
@@ -437,6 +450,9 @@ dialog.rr::backdrop { background: rgba(8,8,7,.85); backdrop-filter: blur(6px); }
   .shot .cap { font-size: 15px; }
   .diff, .todos, .hits { margin-left: 2ch; }
   .diff { font-size: .8em; }
+  .diff .row { white-space: pre-wrap; }
+  .stamp { width: 84px; height: 84px; font-size: 10px; top: 64px; right: 12px; bottom: auto; }
+  .ticket .mark { display: none; }
   .banner-wrap, .lede, .ticket-wrap { margin-left: 0; }
   .ticket { padding: 22px 20px 20px; }
   .ticket .perf { margin-left: -20px; margin-right: -20px; }
@@ -551,6 +567,7 @@ dialog.rr::backdrop { background: rgba(8,8,7,.85); backdrop-filter: blur(6px); }
         <div class="todo now ln"><span class="bx">☐</span><span class="tt">Fêter ça comme il faut</span></div>
         <div class="todo ln"><span class="bx">☐</span><span class="tt">Écrire un commit message de plus de trois mots</span></div>
         <div class="todo ln"><span class="bx">☐</span><span class="tt">Arrêter de mettre des chaises sur sa tête</span></div>
+        <div class="todo ln"><span class="bx">☐</span><span class="tt">Boire un verre d'eau. D'eau. Pas de thé froid.</span></div>
       </div>
     </div>
 
@@ -564,6 +581,40 @@ dialog.rr::backdrop { background: rgba(8,8,7,.85); backdrop-filter: blur(6px); }
       <div class="msg tool ln"><span class="dot">⏺</span><span><span class="tool-name">Read</span>(~/photos/*)</span></div>
       <div class="res ln"><span class="elbow">⎿</span><span>8 photos. J'ai quelques commentaires.</span></div>
       <div class="gallery" id="gallery"></div>
+    </div>
+
+    <div class="blk" data-step data-type="cut" data-think="1500" data-verb="Cherche d'autres souvenirs" data-read="900">
+      <div class="msg ln"><span class="dot">⏺</span><span class="stream">J'ai aussi retrouvé une vidéo où Constantin essaie de</span></div>
+      <div class="res ln"><span class="elbow">⎿</span><span class="red">Interrupted by user</span></div>
+    </div>
+
+    <div class="blk" data-step data-type="user">
+      <div class="user-wrap"><div class="user"><span class="caret">&gt;</span><span class="txt">non. pas celle-là.</span></div></div>
+    </div>
+
+    <div class="blk" data-step data-think="1300" data-verb="Efface des preuves" data-read="2800" data-stagger="500">
+      <div class="msg ln"><span class="dot">⏺</span><span>Compris. Cette vidéo n'a jamais existé.</span></div>
+      <div class="res ln"><span class="elbow">⎿</span><span>Removed ~/photos/<s>video_que_personne_ne_doit_voir.mov</s></span></div>
+    </div>
+
+    <div class="blk" data-step data-type="user">
+      <div class="user-wrap"><div class="user"><span class="caret">&gt;</span><span class="txt">t'as oublié le plus important : il est complètement accro au thé froid migros</span></div></div>
+    </div>
+
+    <div class="blk" data-step data-think="1600" data-verb="Prend conscience de son erreur" data-read="1800">
+      <div class="msg ln"><span class="dot">⏺</span><span><b class="ty">You're absolutely right!</b> C'est une omission grave. Je corrige.</span></div>
+    </div>
+
+    <div class="blk" data-step data-read="5500" data-stagger="400">
+      <div class="msg tool ln"><span class="dot">⏺</span><span><span class="tool-name">Update</span>(Sources/Constantin/Constantin.swift)</span></div>
+      <div class="res ln"><span class="elbow">⎿</span><span>Updated Constantin.swift with <b class="green">3</b> additions</span></div>
+      <div class="diff ln" role="img" aria-label="Diff : ajout du thé froid Migros">
+<div class="row"><span class="n">5</span><span class="mark"> </span><span>    let usesClaudeCode = true  <span class="cm">// tout le temps</span></span></div>
+<div class="row add"><span class="n">6</span><span class="mark">+</span><span>    let favoriteDrink = "Thé froid Migros"</span></div>
+<div class="row add"><span class="n">7</span><span class="mark">+</span><span>    let iceTeaPerDay: Liters = .unreasonable</span></div>
+<div class="row add"><span class="n">8</span><span class="mark">+</span><span>    let bloodType = "Thé froid, citron"  <span class="cm">// confirmé</span></span></div>
+<div class="row"><span class="n">9</span><span class="mark"> </span><span>}</span></div>
+      </div>
     </div>
 
     <div class="blk" data-step data-type="user">
@@ -581,7 +632,7 @@ dialog.rr::backdrop { background: rgba(8,8,7,.85); backdrop-filter: blur(6px); }
         <h3>Cadeau de Hugo</h3>
         <div class="body">
           <div class="q">Débloquer <b>1 mois de Claude Pro</b> pour Constantin ?</div>
-          <div class="dim">Fini les limites à 2h du mat.</div>
+          <div class="dim">Livré avec une quantité déraisonnable de thé froid.</div>
         </div>
         <div class="q">Do you want to proceed?</div>
         <ul class="opts" role="listbox" aria-label="Accepter le cadeau ?">
@@ -595,31 +646,42 @@ dialog.rr::backdrop { background: rgba(8,8,7,.85); backdrop-filter: blur(6px); }
     </div>
 
     <div class="blk" data-step data-read="1800" data-stagger="500">
-      <div class="msg tool ln"><span class="dot">⏺</span><span><span class="tool-name">Bash</span>(claude /upgrade --plan pro --months 1 --paid-by hugo)</span></div>
+      <div class="msg tool ln"><span class="dot">⏺</span><span><span class="tool-name">Bash</span>(claude /upgrade --plan pro --months 1 --gift)</span></div>
       <div class="res ln"><span class="elbow">⎿</span><span><span class="green">Abonnement activé.</span> Les rate limits, c'est plus ton problème.</span></div>
+    </div>
+
+    <div class="blk" data-step data-think="2000" data-verb="Vide les rayons" data-read="3000" data-stagger="600">
+      <div class="msg tool ln"><span class="dot">⏺</span><span><span class="tool-name">Bash</span>(migros commande "thé froid" --quantité beaucoup)</span></div>
+      <div class="res ln"><span class="elbow">⎿</span><span><span class="green">Commande prête.</span> Livraison en main propre par Hugo.</span></div>
+      <div class="res ln"><span></span><span>warning: stock du Migros le plus proche épuisé. On sait tous pourquoi.</span></div>
     </div>
 
     <div class="blk" data-step data-read="6500">
       <div class="ticket-wrap ln">
-        <div class="ticket" id="ticket" role="group" aria-label="Cadeau : un mois de Claude Pro, offert par Hugo">
+        <div class="ticket" id="ticket" role="group" aria-label="Cadeau : un mois de Claude Pro et beaucoup de thé froid Migros, offert par Hugo">
           <svg class="mark" viewBox="0 0 100 100" aria-hidden="true"><g stroke="#1d0f0a" stroke-width="9" stroke-linecap="round"><path d="M50 8v84M8 50h84M20 20l60 60M80 20L20 80"/></g></svg>
           <div class="top"><span>BON CADEAU · N° 18</span><span>03.10.2026</span></div>
           <div class="big">1 mois de<br>Claude Pro</div>
-          <div class="sub">Offert par Hugo, pour tes 18 ans.</div>
+          <div class="sub">+ une quantité déraisonnable de thé froid Migros</div>
           <div class="perf"></div>
-          <div class="fine">Pour coder sans te prendre « usage limit reached » à 2h du mat. Non échangeable contre une chaise.</div>
-          <a class="cta" id="cta" href="#" target="_blank" rel="noopener">Récupérer le cadeau <span aria-hidden="true">→</span></a>
+          <div class="receipt">
+            <div class="rc"><span>Claude Pro, 1 mois</span><span class="d"></span><b>×1</b></div>
+            <div class="rc"><span>Thé froid Migros</span><span class="d"></span><b>×beaucoup</b></div>
+            <div class="rc"><span>Usage limits</span><span class="d"></span><b>×0</b></div>
+          </div>
+          <div class="fine">Offert par Hugo, pour tes 18 ans.<br>À récupérer en main propre. Non échangeable contre une chaise.</div>
+          <div class="stamp" aria-hidden="true"><small>✻ 18 ✻</small>CERTIFIÉ<br>MAJEUR</div>
         </div>
       </div>
     </div>
 
     <div class="blk" data-step data-read="2600" data-stagger="600">
-      <div class="msg ln"><span class="dot">⏺</span><span>Joyeux anniversaire Constantin. Profite bien de tes 18 ans, et de Claude Pro.</span></div>
+      <div class="msg ln"><span class="dot">⏺</span><span>Joyeux anniversaire Constantin. Profite bien de tes 18 ans, de Claude Pro et du thé froid (avec modération).</span></div>
       <div class="res ln"><span></span><span>— Hugo</span></div>
     </div>
 
     <div class="blk" data-step data-read="0">
-      <div class="msg ln"><span class="dot faint">⏺</span><span class="dim">Psst, c'est pas fini. Il y a 8 easter eggs cachés sur cette page. Tape <b style="color:var(--fg)">/help</b> en bas pour commencer.</span></div>
+      <div class="msg ln"><span class="dot faint">⏺</span><span class="dim">Psst, c'est pas fini. Il y a 9 easter eggs cachés sur cette page. Tape <b style="color:var(--fg)">/help</b> en bas pour commencer.</span></div>
     </div>
 
     </div><!-- /log -->
@@ -639,7 +701,7 @@ dialog.rr::backdrop { background: rgba(8,8,7,.85); backdrop-filter: blur(6px); }
       </div>
       <div class="status">
         <span class="mode" id="mode">⏵⏵ majorité on</span>
-        <span><span id="eggs">eggs 0/8</span> · <span id="age">majeur</span></span>
+        <span><span id="eggs">eggs</span> · <span id="age">majeur</span></span>
       </div>
     </div>
   </div>
@@ -649,13 +711,6 @@ dialog.rr::backdrop { background: rgba(8,8,7,.85); backdrop-filter: blur(6px); }
 
 <!-- dock -->
 <div class="dock" id="dock" role="toolbar" aria-label="Lecture">
-  <div class="grp">
-    <button class="icon-btn" id="b-play" type="button" aria-label="Pause">
-      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" id="i-pause"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>
-      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" id="i-play" style="display:none"><path d="M7 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L8.5 4.64A1 1 0 0 0 7 5.5z"/></svg>
-    </button>
-    <button class="icon-btn speed" id="b-speed" type="button" aria-label="Vitesse">1×</button>
-  </div>
   <div class="mid">
     <div class="hint" id="hint">touche pour avancer</div>
     <div class="track"><div class="bar" id="bar"></div></div>
@@ -664,7 +719,7 @@ dialog.rr::backdrop { background: rgba(8,8,7,.85); backdrop-filter: blur(6px); }
     <button class="icon-btn" id="b-sound" type="button" aria-label="Son" aria-pressed="false">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4z"/><path id="i-wave" d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/><path id="i-mute" d="m16 9 6 6m0-6-6 6"/></svg>
     </button>
-    <button class="icon-btn" id="b-skip" type="button" aria-label="Tout afficher">
+    <button class="icon-btn" id="b-skip" type="button" aria-label="Tout afficher" hidden>
       <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4 6.2v11.6a.8.8 0 0 0 1.24.67L13 13.3v4.5a.8.8 0 0 0 1.24.67l8.4-5.8a.8.8 0 0 0 0-1.34l-8.4-5.8A.8.8 0 0 0 13 6.2v4.5L5.24 5.53A.8.8 0 0 0 4 6.2z"/></svg>
     </button>
   </div>
@@ -699,9 +754,6 @@ dialog.rr::backdrop { background: rgba(8,8,7,.85); backdrop-filter: blur(6px); }
    CONTENU À ÉDITER
    ============================================================ */
 
-// Lien de récupération du cadeau. Vide = le bouton dit que le lien arrive en DM.
-const GIFT_URL = "";
-
 // Date des 18 ans (pour le compteur « majeur depuis »).
 const BIRTHDAY = "2026-10-03T00:00:00+02:00";
 
@@ -710,6 +762,7 @@ const JOKES = [
   { file: "souvenirs/epfl.md",     line: 12,   text: "« C'est où le Rolex ? », demandé devant le Rolex.", note: "Photo à l'appui, plus bas." },
   { file: "souvenirs/casiers.md",  line: 1,    text: "LE CASIER.", note: "Je n'en sais pas plus, et je crois que c'est mieux comme ça." },
   { file: "souvenirs/apple.txt",   line: 404,  text: "« T'inquiète, c'est juste un petit bug. »", note: "Apple n'était pas d'accord. CVE publiée." },
+  { file: "souvenirs/migros.csv",   line: 24,   text: "Thé froid citron ×24", note: "Les courses de la semaine. Enfin, du lundi." },
   { file: "souvenirs/git-log.txt", line: 1,    text: "fix", note: "Son commit message préféré. Et aussi le seul." },
   { file: "souvenirs/claude.log",  line: 9999, text: "« Attends, je demande à Claude. »", note: "Environ toutes les quatre minutes." },
 ];
@@ -806,11 +859,6 @@ function fitBanner() {
 document.fonts && document.fonts.ready.then(fitBanner);
 addEventListener("resize", fitBanner);
 
-// Lien cadeau
-const cta = $("#cta");
-if (GIFT_URL) cta.href = GIFT_URL;
-else { cta.removeAttribute("href"); cta.removeAttribute("target"); cta.innerHTML = "Le lien arrive en DM <span aria-hidden='true'>→</span>"; cta.style.cursor = "default"; }
-
 // Compteur de majorité
 function tickAge() {
   const d = Date.now() - new Date(BIRTHDAY).getTime(), a = Math.abs(d);
@@ -849,19 +897,17 @@ $("#lb-stage").addEventListener("touchend", e => {
 /* ============================================================
    MOTEUR DE LECTURE
    ============================================================ */
-let playing = true, wasPlaying = true, speed = 1, rushing = false, skipReq = false, done = false, gateOpen = false, gateResolve;
+let playing = true, wasPlaying = true, rushing = false, skipReq = false, done = false, gateOpen = false, gateResolve;
 const bar = $("#bar"), hint = $("#hint");
 const setHint = t => { hint.textContent = t; };
+const fine = matchMedia("(pointer: fine)").matches;
+const HINT = fine ? "espace pour continuer · esc pour tout afficher" : "touche l'écran pour continuer";
+setHint(HINT);
 
 function setPlaying(v) {
   playing = v;
-  $("#i-pause").style.display = v ? "" : "none";
-  $("#i-play").style.display = v ? "none" : "";
-  $("#b-play").setAttribute("aria-label", v ? "Pause" : "Lecture");
-  if (!done && !gateOpen) setHint(v ? "touche pour avancer" : "en pause");
 }
-$("#b-play").onclick = () => setPlaying(!playing);
-$("#b-speed").onclick = () => { speed = speed === 1 ? .5 : 1; $("#b-speed").textContent = speed === 1 ? "1×" : "2×"; };
+if (store.get("c22-seen", false)) $("#b-skip").hidden = false;
 $("#b-skip").onclick = () => rush();
 function setSound(v) {
   sfx.on = v; if (v) sfx.init();
@@ -876,13 +922,13 @@ async function hold(ms, progress = true) {
   if (rushing || ms <= 0) return rushing;
   skipReq = false;
   let el = 0, last = performance.now();
-  while (el < ms * speed) {
+  while (el < ms) {
     await frame();
     const now = performance.now();
     if (playing) el += now - last;
     last = now;
     if (skipReq || rushing) { skipReq = false; if (progress) bar.style.width = "0"; return true; }
-    if (progress) bar.style.width = Math.min(100, el / (ms * speed) * 100) + "%";
+    if (progress) bar.style.width = Math.min(100, el / ms * 100) + "%";
   }
   if (progress) bar.style.width = "0";
   return false;
@@ -915,27 +961,30 @@ async function think(ms, verb) {
   if (rushing || !ms) return;
   const s = document.createElement("div");
   s.className = "spin";
-  s.innerHTML = `<span class="g">✻</span>${esc(verb || "Réfléchit")}… <span class="k">(<span class="sec">0</span>s)</span>`;
+  s.innerHTML = `<span class="g">✻</span>${esc(verb || "Réfléchit")}… <span class="k">(<span class="sec">0</span>s · ↑ <span class="tok">0</span> tokens · esc to interrupt)</span>`;
   $("#log").append(s); follow(s);
-  const g = $(".g", s), sec = $(".sec", s), t0 = performance.now(); let i = 0;
-  const iv = setInterval(() => { g.textContent = GLYPHS[i++ % GLYPHS.length]; sec.textContent = Math.floor((performance.now() - t0) / 1000); }, 120);
+  const g = $(".g", s), sec = $(".sec", s), tok = $(".tok", s), t0 = performance.now(); let i = 0, n = 0;
+  const iv = setInterval(() => {
+    g.textContent = GLYPHS[i++ % GLYPHS.length]; sec.textContent = Math.floor((performance.now() - t0) / 1000);
+    n += 20 + Math.random() * 90; tok.textContent = n < 1000 ? Math.round(n) : (n / 1000).toFixed(1) + "k";
+  }, 120);
   await hold(ms, false);
   clearInterval(iv); s.remove();
 }
 
 const steps = $$("#log .blk[data-step]");
-steps.filter(b => b.dataset.type === "user").forEach(b => {
-  const t = $(".txt", b);
+steps.filter(b => b.dataset.type === "user" || b.dataset.type === "cut").forEach(b => {
+  const t = $(".txt, .stream", b);
   t.setAttribute("aria-label", t.textContent);
   t.innerHTML = [...t.textContent].map(c => `<span class="c" aria-hidden="true">${esc(c)}</span>`).join("") + `<span class="typing-cur"></span>`;
 });
 
-async function typeUser(b) {
+async function typeUser(b, claude = false) {
   const cs = $$(".c", b); let fast = false;
   for (const c of cs) {
     if (fast || rushing) break;
-    c.classList.add("v"); if (c.textContent !== " ") sfx.tick();
-    fast = await hold(c.textContent === " " ? 70 : 50 + Math.random() * 60, false);
+    c.classList.add("v"); if (c.textContent !== " " && !claude) sfx.tick();
+    fast = await hold(claude ? 28 + Math.random() * 30 : c.textContent === " " ? 70 : 50 + Math.random() * 60, false);
   }
   cs.forEach(c => c.classList.add("v"));
   if (!rushing) await hold(600, false);
@@ -963,21 +1012,30 @@ async function run() {
   for (const b of steps) {
     if (b.dataset.think) await think(+b.dataset.think, b.dataset.verb);
     if (b.dataset.type === "user") { b.classList.add("on"); follow(b); await typeUser(b); continue; }
+    if (b.dataset.type === "cut") {
+      const [first, ...rest] = $$(".ln", b);
+      b.classList.add("on"); first.classList.add("on"); follow(first);
+      await typeUser(b, true);
+      rest.forEach(l => l.classList.add("on")); sfx.err(); follow(b);
+      await hold(readTime(b));
+      continue;
+    }
     await show(b);
     if (b.querySelector("#limit") && !rushing) { $("#limit").classList.add("glitch"); sfx.err(); }
     if (b.dataset.type === "gate") {
       rushing = false; gateOpen = true; bar.style.width = "0";
-      setHint("à toi : choisis");
+      setHint("à toi de choisir");
       follow(perm, true);
       focusOpt(0, matchMedia("(pointer: fine)").matches);
       await new Promise(r => (gateResolve = r));
-      gateOpen = false; setHint("touche pour avancer");
+      gateOpen = false; setHint(HINT);
       continue;
     }
     if (b.querySelector("#ticket")) celebrate();
     await hold(readTime(b));
   }
   done = true;
+  store.set("c22-seen", true);
   setHint("fini ✻");
   $("#dock").classList.add("away");
   $("#tail").classList.add("on");
@@ -1053,6 +1111,7 @@ function celebrate() {
   }
   sfx.chord(); confetti(220);
   setTimeout(() => confetti(120), 700);
+  setTimeout(() => { sfx.tone(70, .25, { type: "square", vol: .06, slide: 40 }); const w = $(".ticket-wrap"); w.animate([{ transform: "translateY(3px)" }, { transform: "none" }], { duration: 180 }); }, reduce ? 0 : 1650);
 }
 
 // Billet qui s'incline sous la souris
@@ -1073,13 +1132,12 @@ ticket.addEventListener("pointerleave", () => { ticket.style.setProperty("--rx",
    ============================================================ */
 const cv = $("#confetti"), cx = cv.getContext("2d");
 let parts = [], raf = 0;
-function confetti(n = 160) {
+function confetti(n = 160, chars = ["✻", "✶", "✳", "✽", "1", "8", "✻"]) {
   if (reduce) return;
   const dpr = Math.min(2, devicePixelRatio || 1), W = innerWidth, H = innerHeight;
   if (cv.width !== Math.round(W * dpr) || cv.height !== Math.round(H * dpr)) { cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
   cx.setTransform(dpr, 0, 0, dpr, 0, 0);
   const cols = ["#d97757", "#f0a385", "#f6cdb9", "#ecebe6", "#b4bbfa", "#d97757", "#5fc77a"];
-  const chars = ["✻", "✶", "✳", "✽", "1", "8", "✻"];
   for (let i = 0; i < Math.min(n, W / 2.2); i++) {
     const a = -Math.PI / 2 + (Math.random() - .5) * 1.9, v = 8 + Math.random() * 14;
     parts.push({
@@ -1108,7 +1166,7 @@ function loop() {
 /* ============================================================
    EASTER EGGS
    ============================================================ */
-const EGGS = { rickroll: "le fichier secret", sudo: "sudo", vim: "sortir de vim", close: "le bouton rouge", star: "le ✻", yolo: "le mode YOLO", candles: "les bougies", aura: "l'aura" };
+const EGGS = { rickroll: "le fichier secret", sudo: "sudo", vim: "sortir de vim", close: "le bouton rouge", star: "le ✻", yolo: "le mode YOLO", candles: "les bougies", aura: "l'aura", tea: "le stock de thé froid" };
 const N_EGGS = Object.keys(EGGS).length;
 let found = new Set(store.get("c22-eggs", []).filter(k => k in EGGS));
 const renderEggs = () => { $("#eggs").textContent = `eggs ${found.size}/${N_EGGS}`; };
@@ -1189,11 +1247,11 @@ const LS = () => out(`<span class="dim">Constantin.swift   photos/   souvenirs/ 
 const SIMPLE = {
   "/help": () => out("Ce que tu peux essayer :") +
     sub("souffle les bougies · ls · git log · cat cadeau.txt · /cost · /model · /exit · merci") +
-    sub(`<span class="clay">8 easter eggs</span> cachés. Certains se tapent, d'autres se touchent.`),
+    sub(`<span class="clay">${N_EGGS} easter eggs</span> cachés. Certains se tapent, d'autres se touchent.`),
   "ls": LS, "ls -la": LS, "ls -l": LS, "ll": LS,
   "git log": () => out(`<span class="clay">a1f0c18</span> fix<br><span class="clay">9e2b7d4</span> fix stuff<br><span class="clay">4c51e09</span> wip<br><span class="clay">0d3a6f2</span> ok<br><span class="clay">7b18c22</span> 18`) + sub("Cinq commits, six mots. Un style à part."),
   "cat cadeau.txt": () => out("1 mois de Claude Pro. Offert par Hugo.") + sub(`<button class="file-btn" data-goto="ticket" type="button">revoir le bon cadeau</button>`),
-  "/cost": () => out("Total cost : <b>0,00 CHF</b>") + sub("C'est Hugo qui paie. Tu peux lui dire merci."),
+  "/cost": () => out("Total cost : <b>0,00 CHF</b>") + sub("Pour toi, en tout cas. C'est un cadeau."),
   "/model": () => out("Modèle actuel : <b>Constantin 18.0</b> (stable)") + sub("La 17.x n'est plus supportée. Pas de rollback possible."),
   "/upgrade": () => out("Déjà fait, regarde un peu plus haut.") + sub("Merci qui ? Merci Hugo."),
   "/clear": () => out("Non. Cette page reste comme ça."),
@@ -1231,6 +1289,11 @@ function runCmd(raw) {
     return say(raw, out("Aura +1000.") + sub("Total actuel : beaucoup trop. Voir photo 1."));
   }
   if (/bougie|souffle|candle|blow/.test(q)) return candles(raw);
+  if (/th[eé] ?froid|ice ?tea|migros|^th[eé]$/.test(q)) {
+    egg("tea"); sfx.pop(); confetti(160, ["THÉ", "FROID", "✻", "THÉ"]);
+    return say(raw, out("Inventaire : <b>0</b> thé froid restant.") + sub("Constantin est passé avant toi.") +
+      `<div class="cake">   ______\n  /_____/|\n |  THÉ | |\n | FROID| |\n |  *   | /\n |______|/</div>`);
+  }
   const f = SIMPLE[q];
   say(raw, f ? f() : out("Je ne transmets pas les messages à Hugo, désolé.") + sub("Écris-lui directement, il attend. Ou tape <b>/help</b>."));
 }
